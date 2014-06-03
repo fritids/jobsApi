@@ -1,8 +1,14 @@
 ﻿<?php
 
+namespace \Crawler;
+
+use Symfony\Component\DomCrawler\Crawler;
+
+
+
 // http://www.phpro.org/examples/Get-Links-With-DOM.html
 // http://www.phpro.org/examples/Parse-HTML-With-PHP-And-DOM.html
-
+/*
 class Crawler {
 	public function __construct($url) {
 		$this->url       = $url;
@@ -96,7 +102,7 @@ class Crawler {
 						}
 					}
 				}*/
-			}
+		/*	}
 
 			return $jobs;
 		}
@@ -125,4 +131,6 @@ error_log('Adresse : ' . $address . ' => ' . print_r($results, TRUE)); exit(0);
 	private function indexJob($job) {
 		$searcher = new Searcher();
 	}
-}
+}*/
+
+?>
