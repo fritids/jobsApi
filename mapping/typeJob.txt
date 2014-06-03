@@ -1,0 +1,86 @@
+{
+    "jobs-statistics": {
+        "mappings": {
+            "job": {
+                "properties": {
+                    "websiteName": {
+                        "type": "string"
+                    },
+                    "websiteUrl": {
+                        "type": "string"
+                    },
+                    "jobTitle": {
+                        "type": "string"
+                    },
+                    "jobUrl": {
+                        "type": "string"
+                    },
+                    "jobType": {
+                        "type": "string"
+                    },
+                    "jobPay": {
+                        "type": "string"
+                    },
+                    "jobCityName": {
+                        "type": "string"
+                    },
+                    "jobPostalCode": {
+                        "type": "string"
+                    },
+                    "jobRegionName": {
+                        "type": "string"
+                    },
+                    "jobGpsLocation": {
+                        "type": "geo_point"
+                    }
+                    "recoveryDate": {
+                        "type": "date"
+                    },
+                    "publicationDate": {
+                        "type": "date"
+                    },
+                    "companyName": {
+                        "type": "string"
+                    },
+                    "companyUrl": {
+                        "type": "string"
+                    },
+                    "requiredSkills": {
+                        "type": "string"
+                    }
+
+
+
+
+               "created": {
+                  "type": "date",
+                  "format": "dateOptionalTime"
+               },
+               "locality": {
+                  "type": "string",
+                  "index": "not_analyzed"
+               },
+               "locality_slug": {
+                  "type": "string",
+                  "index": "not_analyzed"
+               },
+               "location": {
+                  "type": "geo_point"
+               },
+               "partenaire": {
+                  "type": "boolean"
+               },
+               "subtypes": {
+                  "type": "string",
+                  "index": "not_analyzed"
+               },
+               "title": {
+                  "type": "string",
+                  "store": true,
+                  "analyzer": "analyzerMRS"
+               },
+            }
+         }
+      }
+   }
+}
