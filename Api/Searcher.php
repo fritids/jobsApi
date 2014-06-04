@@ -1,5 +1,7 @@
 <?php
 
+namespace Api;
+
 require 'vendor/autoload.php';
 
 class Searcher {
@@ -16,9 +18,7 @@ class Searcher {
 			'body'  => $element,
 		);
 
-		$res = $this->client->index($params);
-
-		return $res;
+		return $this->client->index($params);;
 	}
 }
 

@@ -1,5 +1,7 @@
 <?php
 
+namespace Api;
+
 class Job {
 	public function __construct() {
 		$this->websiteName     = NULL;
@@ -19,21 +21,31 @@ class Job {
 		$this->requiredSkills  = array();
 	}
 
-	public function __get($attribute) {
-        return $this->$attribute;
-    }
-
-	public function __set($attribute, $value) {
-		$this->$attribute = $value;
-	}
-
-	public function __toString() {
+	private function __toString() {
         return '<tr>' .
         	'<td>' . $this->jobTitle . '</td>' .
         	'<td>' . $this->jobType . '</td>' .
         	'<td>' . $this->jobCityName . '</td>' .
         	'<td>' . $this->jobRegionName . '</td>' .
         '</tr>';
+    }
+
+    private function generateId() {
+    	$string = $this->slug($this->jobTitle) . $this->slug($this->companyName) . $this->slug($this->jobType);
+
+    	return md5($string);
+    }
+
+    private function slug($text) {
+        // Make sure string is in UTF-8 and strip invalid UTF-8 characters
+        $text    = mb_convert_encoding((string)$text, 'UTF-8', mb_list_encodings());
+        $options = array(
+            'delimiter'     => '-',
+            'limit'         => NULL,
+            'lowercase'     => TRUE,
+            'replacements'  => array(),
+            'transliterate' => FALSE,
+        );
     }
 }
 
