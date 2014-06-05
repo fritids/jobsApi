@@ -4,8 +4,10 @@
 
 require 'Api/Website.php';
 require 'Api/Job.php';
+require 'Api/Grubber.php';
 
 // use Api\Website;
+
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\CssSelector\CssSelector;
 
@@ -20,22 +22,14 @@ class Alsacreations extends Website {
         $this->userAgent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 GTB5';
         $this->html      = $this->getPageDom($this->url);
         $this->crawler   = new Crawler($this->html);
+        $this->grubber   = new Grubber();
     }
 
     public function crawl() {
         $jobsTable = $this->extractJobTable();
 
         if ($jobsTable != FALSE) {
-            $jobRow = $jobsTable->filter('tr'); 
-
-            /*
-            $myFile     = 'debug.txt';
-            $fh         = fopen($myFile, 'w') or die('Can\'t open file');
-            $stringData = print_r($jobRow, TRUE);
-            
-            fwrite($fh, $stringData);
-            fclose($fh);
-            */
+            $jobRow = $jobsTable->filter('tr');
             
             $jobRow->each(function($node, $i) {
                 $data = array();
@@ -71,40 +65,45 @@ class Alsacreations extends Website {
 
                 preg_match($pattern, $location->first()->text(), $matches);
 
-                $data['jobCityName']   = $matches[1];
-                $data['jobRegionName'] = trim($matches[2], '()'); 
+                $data['jobCityName'] = NULL;
 
-               /* $data['publicationDate'] = $jobDom->filter('div#emploi p.navinfo > time')->each(function($node, $i) {
-                    return $node->text();
-                })[0];
+                if (isset($matches[1])) {
+                    $data['jobCityName'] = $matches[1];
+                }
 
-                $data['companyUrl'] = $jobDom->filter('div#emploi div#second > p > a')->each(function($node, $i) {
-                    return $node->attr('href');
-                })[0];
-*/
-                /*
-                $jobDom->filter('body table')
-                    ->reduce(function($node, $i) {
-                        if ($node->attr('class') != 'offre') {
-                            return FALSE;
-                        }
-                    })
-                    ->first();
-                }); 
-                */
+                $data['jobRegionName'] = NULL;
 
-                echo print_r($data, TRUE);
+                if (isset($matches[2])) {
+                    $data['jobRegionName'] = trim($matches[2], '()'); 
+                }
 
-                // $job = new Job($data);
+                $publicationDates = $jobDom->filter('div#emploi p.navinfo > time')->reduce(function($node, $i) {
+                    if ($node->attr('pubdate') != NULL) {
+                        return FALSE;
+                    }
+                });
 
-                // $this->sendJob($job);
+                $data['publicationDate'] = $publicationDates->first()->text();
+
+                $companyUrls = $jobDom->filter('div#emploi div#second > p > a')->reduce(function($node, $i) {
+                    if ($node->attr('itemprop') != 'url') {
+                        return FALSE;
+                    }
+                });
+
+                // $data['companyUrl'] = $companyUrls->first()->attr('href');
+
+                // echo print_r($data, TRUE);
+
+                $job = new Job($data);
+
+                $this->sendJob($job);
             });
         }
     }
 
     private function sendJob($job) {
-        echo print_r($job);
-        echo 'JOB ENVOYE'; exit(0);
+        $this->grubber->sendJob($job);
     }
 
     private function getPageDom($url) {
@@ -137,42 +136,6 @@ class Alsacreations extends Website {
                 }
             })
             ->first();
-    }
-
-    private function extractJobType() {
-        return NULL;
-    }
-
-    private function extractJobPay() {
-        return NULL;
-    }
-
-    private function extractJobCityName() {
-        return NULL;
-    }
-
-    private function extractJobPostalCode() {
-        return NULL;
-    }
-
-    private function extractJobRegionName() {
-        return NULL;
-    }
-
-    private function extractJobLocation() {
-        return NULL;
-    }
-
-    private function extractCompanyName() {
-        return NULL;
-    }
-
-    private function extractCompanyUrl() {
-        return NULL;
-    }
-
-    private function extractRequiredSkills() {
-        return NULL;
     }
 }
 
