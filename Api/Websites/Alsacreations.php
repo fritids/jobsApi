@@ -42,34 +42,46 @@ class Alsacreations extends Website {
         $jobsTable = $this->extractJobTable();
 
         if ($jobsTable != FALSE) {
-            $jobRow = $jobsTable->filter('tr'); error_log(print_r($jobRow, TRUE));
+            $jobRow = $jobsTable->filter('tr'); 
 
-            foreach ($jobRow as $row) { echo print_r($row, TRUE);
-                $columns = $row->filter('td');
-                $link    = $columns->filter('td')->first();
-                $span    = $columns->filter('span')->eq(1);
-                $b       = $columns->filter('b')->first();
-                $data    = array();
-
-                $data['websiteName']     = $this->website;
-                $data['websiteUrl']      = $this->url;
+            /*
+            $myFile     = 'debug.txt';
+            $fh         = fopen($myFile, 'w') or die('Can\'t open file');
+            $stringData = print_r($jobRow, TRUE);
+            
+            fwrite($fh, $stringData);
+            fclose($fh);
+            */
+            
+            $jobRow->each(function($node, $i) {
+                $data = array();
+                $link = $node->filter('a')->first();
+                $span = $node->filter('span')->first();
+                $b    = $node->filter('b')->first();
+                
                 $data['jobTitle']        = $link->text();
                 $data['jobUrl']          = $this->url . $link->attr('href');
                 $data['jobType']         = $span->text();
                 // $data['jobPay']          = $this->extractJobPay();
-                $data['jobCityName']     = $columns->eq1(1)->text();
+                // $data['jobCityName']     = $node->text();
                 // $data['jobPostalCode']   = $this->extractJobPostalCode();
-                $data['jobRegionName']   = $columns->eq(1)->text();
+                // $data['jobRegionName']   = $node->eq(1)->text();
                 // $data['jobLocation']     = $this->extractJobLocation();
                 // $data['publicationDate'] = $this->ext
                 $data['companyName']     = $b->text();
                 // $data['companyUrl']      = $this->extractCompanyUrl();
                 // $data['requiredSkills']  = $this->extractRequiredSkills();
 
-                $job = new Job($data);
+                $jobDom = $this->getPageDom($data['jobUrl']);
 
-                $this->sendJob($job);
-            }
+
+
+                // echo print_r($data, TRUE);
+
+                // $job = new Job($data);
+
+                // $this->sendJob($job);
+            });
         }
     }
 
@@ -78,14 +90,14 @@ class Alsacreations extends Website {
         echo 'JOB ENVOYE'; exit(0);
     }
 
-    private function getPageDom() {
+    private function getPageDom($url) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_COOKIE, 'someCookie=2127;onlineSelection=C');
         curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
         curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
         curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
-        curl_setopt($ch, CURLOPT_URL, $this->url);
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
         curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
@@ -100,13 +112,14 @@ class Alsacreations extends Website {
     }
 
     private function extractJobTable() {
-        $jobsTable = $this->crawler->filter('body table')->first();
-
-        if ($jobsTable->attr('class') == 'offre') {
-            return $jobsTable;
-        }
-
-        return FALSE;
+        return $this->crawler
+            ->filter('body table')
+            ->reduce(function($node, $i) {
+                if ($node->attr('class') != 'offre') {
+                    return FALSE;
+                }
+            })
+            ->first();
     }
 
     private function extractJobType() {
