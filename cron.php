@@ -11,6 +11,6 @@ require 'Api/Websites/Alsacreations.php';
 $grubber       = new Grubber();
 $alsacreations = new Alsacreations();
 
-echo print_r($alsacreations->extractJobTitle(), TRUE);
+$alsacreations->crawl();
 
 ?>
