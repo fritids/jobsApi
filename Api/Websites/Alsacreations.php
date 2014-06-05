@@ -52,26 +52,36 @@ class Alsacreations extends Website {
                 $data['jobTitle']        = $link->text();
                 $data['jobUrl']          = $this->url . $link->attr('href');
                 // $data['jobPay']          = $this->extractJobPay();
-                // $data['jobCityName']     = $node->text();
                 // $data['jobPostalCode']   = $this->extractJobPostalCode();
-                // $data['jobRegionName']   = $node->eq(1)->text();
                 // $data['jobLocation']     = $this->extractJobLocation();
                 $data['recoveryDate']    = date('Y-m-d');
                 $data['companyName']     = $b->text();
-                // $data['companyUrl']      = $this->extractCompanyUrl();
                 // $data['requiredSkills']  = $this->extractRequiredSkills();
 
                 $jobHtml = $this->getPageDom($data['jobUrl']);
                 $jobDom  = new Crawler($jobHtml);
 
-                $data['publicationDate'] = $jobDom->filter('div#emploi p.navinfo > time')->each(function($node, $i) {
+                $location = $jobDom->filter('div#emploi div#premier b')->reduce(function($node, $i) {
+                    if ($node->attr('itemprop') != 'jobLocation') {
+                        return FALSE;
+                    }
+                });
+
+                $pattern = '/(.*)(\(.*\)$)/';
+
+                preg_match($pattern, $location->first()->text(), $matches);
+
+                $data['jobCityName']   = $matches[1];
+                $data['jobRegionName'] = trim($matches[2], '()'); 
+
+               /* $data['publicationDate'] = $jobDom->filter('div#emploi p.navinfo > time')->each(function($node, $i) {
                     return $node->text();
                 })[0];
 
                 $data['companyUrl'] = $jobDom->filter('div#emploi div#second > p > a')->each(function($node, $i) {
                     return $node->attr('href');
                 })[0];
-
+*/
                 /*
                 $jobDom->filter('body table')
                     ->reduce(function($node, $i) {
