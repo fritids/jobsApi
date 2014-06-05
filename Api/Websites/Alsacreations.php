@@ -20,22 +20,6 @@ class Alsacreations extends Website {
         $this->userAgent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 GTB5';
         $this->html      = $this->getPageDom($this->url);
         $this->crawler   = new Crawler($this->html);
-   
-        $this->websiteName     = NULL;
-        $this->websiteUrl      = NULL;
-        $this->jobTitle        = NULL;
-        $this->jobUrl          = NULL;
-        $this->jobType         = NULL;
-        $this->jobPay          = NULL;
-        $this->jobCityName     = NULL;
-        $this->jobPostalCode   = NULL;
-        $this->jobRegionName   = NULL;
-        $this->jobLocation     = NULL;
-        $this->recoveryDate    = date('Y-m-d');
-        $this->publicationDate = NULL;
-        $this->companyName     = NULL;
-        $this->companyUrl      = NULL;
-        $this->requiredSkills  = array();
     }
 
     public function crawl() {
@@ -59,24 +43,47 @@ class Alsacreations extends Website {
                 $span = $node->filter('span')->first();
                 $b    = $node->filter('b')->first();
                 
+                $allowedJobTypes = array('CDI', 'CDD', 'Stage', 'Apprentissage', 'Contrat Pro', 'Télétravail');
+
+                if (in_array($span->text(), $allowedJobTypes)) {
+                    $data['jobType'] = $span->text();   
+                }
+
                 $data['jobTitle']        = $link->text();
                 $data['jobUrl']          = $this->url . $link->attr('href');
-                $data['jobType']         = $span->text();
                 // $data['jobPay']          = $this->extractJobPay();
                 // $data['jobCityName']     = $node->text();
                 // $data['jobPostalCode']   = $this->extractJobPostalCode();
                 // $data['jobRegionName']   = $node->eq(1)->text();
                 // $data['jobLocation']     = $this->extractJobLocation();
-                // $data['publicationDate'] = $this->ext
+                $data['recoveryDate']    = date('Y-m-d');
                 $data['companyName']     = $b->text();
                 // $data['companyUrl']      = $this->extractCompanyUrl();
                 // $data['requiredSkills']  = $this->extractRequiredSkills();
 
-                $jobDom = $this->getPageDom($data['jobUrl']);
+                $jobHtml = $this->getPageDom($data['jobUrl']);
+                $jobDom  = new Crawler($jobHtml);
 
+                $data['publicationDate'] = $jobDom->filter('div#emploi p.navinfo > time')->each(function($node, $i) {
+                    return $node->text();
+                })[0];
 
+                $data['companyUrl'] = $jobDom->filter('div#emploi div#second > p > a')->each(function($node, $i) {
+                    return $node->attr('href');
+                })[0];
 
-                // echo print_r($data, TRUE);
+                /*
+                $jobDom->filter('body table')
+                    ->reduce(function($node, $i) {
+                        if ($node->attr('class') != 'offre') {
+                            return FALSE;
+                        }
+                    })
+                    ->first();
+                }); 
+                */
+
+                echo print_r($data, TRUE);
 
                 // $job = new Job($data);
 
