@@ -3,7 +3,9 @@
 // http://sql.sh/736-base-donnees-villes-francaises
 
 require_once 'data/french_departments.php';
-require_once 'Crawler/classes/Searcher.php';
+require_once '../Api/Searcher.php';
+
+use \Api\Searcher;
 
 $host     = '127.0.0.1';
 $port     = '9200';
@@ -51,7 +53,7 @@ $columnsNamesToIndex = array(
 	'ville_longitude_deg',
 	'ville_latitude_deg',
 );
-$handle = fopen('utils/data/french_cities.csv', 'r');
+$handle = fopen('data/french_cities.csv', 'r');
 
 if ($handle !== FALSE) {
 	$cityCounter = 0;

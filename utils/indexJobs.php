@@ -1,12 +1,12 @@
 <?php
 
-require_once 'Crawler/classes/Searcher.php';
+// require_once 'Crawler/classes/Searcher.php';
 
 $host     = '127.0.0.1';
 $port     = '9200';
 $index    = 'jobs';
 $type     = 'job';
-$searcher = new Searcher($host, $port);
+// $searcher = new Searcher($host, $port);
 
 $columnsNames = array(
     'website_name',

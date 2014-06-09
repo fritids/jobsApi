@@ -1,0 +1,77 @@
+PUT geographic
+{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "autocomplete_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "whitespace",
+                    "filter": ["lowercase", "asciifolding", "custom_elision", "custom_stopwords", "custom_edgeNGram"]
+                }
+            },
+            "filter": {
+                "custom_elision": {
+                    "type": "elision",
+                    "articles": ["l", "m", "t", "qu", "n", "s", "j", "d"]
+                },
+                "custom_stopwords": {
+                    "type": "stop",
+                    "stopwords": ["ès", "vers", "a", "à", "afin", "ai", "ainsi", "après", "attendu", "au", "aujourd", "auquel", "aussi", "autre", "autres", "aux", "auxquelles", "auxquels", "avait", "avant", "avec", "avoir", "c", "ça", "car", "ce", "ceci", "cela", "celle", "celles", "celui", "cependant", "certain", "certaine", "certaines", "certains", "ces", "cet", "cette", "ceux", "chez", "ci", "combien", "comme", "comment", "concernant", "contre", "d", "dans", "de", "debout", "dedans", "dehors", "delà", "depuis", "derrière", "des", "dès", "désormais", "desquelles", "desquels", "dessous", "dessus", "devant", "devers", "devra", "divers", "diverse", "diverses", "doit", "donc", "dont", "du", "duquel", "durant", "elle", "elles", "en", "entre", "environ", "est", "et", "etc", "été", "etre", "être", "eu", "eux", "excepté", "hélas", "hormis", "hors", "hui", "il", "ils", "j", "je", "jusqu", "jusque", "l", "la", "là", "laquelle", "le", "lequel", "les", "lesquelles", "lesquels", "leur", "leurs", "lorsque", "lui", "ma", "mais", "malgré", "me", "même", "mêmes", "merci", "mes", "mien", "mienne", "miennes", "miens", "moi", "moins", "mon", "moyennant", "n", "ne", "néanmoins", "ni", "non", "nos", "notre", "nôtre", "nôtres", "nous", "ô", "on", "ont", "ou", "où", "outre", "par", "parmi", "partant", "pas", "passé", "pendant", "plein", "plus", "plusieurs", "pour", "pourquoi", "près", "proche", "puisque", "qu", "quand", "que", "quel", "quelle", "quelles", "quels", "qui", "quoi", "quoique", "revoici", "revoilà", "s", "sa", "sauf", "se", "selon", "seront", "ses", "si", "sien", "sienne", "siennes", "siens", "sinon", "soi", "soit", "son", "sont", "sous", "suivant", "sur", "ta", "te", "tes", "tien", "tienne", "tiennes", "tiens", "toi", "ton", "tous", "tout", "toute", "toutes", "tu", "un", "une", "va", "voici", "voilà", "vos", "votre", "vôtre", "vôtres", "vous", "vu", "y"]
+                },
+                "custom_edgeNGram": {
+                    "type": "edgeNGram",
+                    "side": "front",
+                    "min_gram": 3,
+                    "max_gram": 20
+                }
+            }
+        }
+    }
+}
+
+PUT geographic/city/_mapping
+{
+    "city": {
+        "properties": {
+            "city_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "city_postal_code": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "city_insee_code": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "city_population": {
+                "type": "long"
+            },
+            "department_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "department_code": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "region_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "region_code": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "location": {
+                "type": "geo_point"
+            }
+        }
+    }
+}
+
+curl -XDELETE http://localhost:9200/geographic
+curl -XPUT http://192.168.0.11:9200/geographic
+curl -XPUT http://chicago.seniormedia.fr:9200/geo/ -d @/home/seniormedia/elasticMoteurs/mappings/index_MRS.txt
+curl -XPUT http://chicago.seniormedia.fr:9200/geo/villes/_mapping -d

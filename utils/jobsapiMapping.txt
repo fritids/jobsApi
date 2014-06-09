@@ -1,0 +1,107 @@
+PUT jobsapi
+{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "autocomplete_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "whitespace",
+                    "filter": ["lowercase", "asciifolding", "elision", "autocomplete_filter"]
+                }
+            },
+            "filter": {
+                "autocomplete_filter": {
+                    "type": "edgeNGram",
+                    "side": "front",
+                    "min_gram": 3,
+                    "max_gram": 20
+                },
+                "elision": {
+                    "type": "elision",
+                    "articles": ["l", "m", "t", "qu", "n", "s", "j", "d"]
+                }
+            }
+        }
+    }
+}
+
+PUT jobsapi/job/_mapping
+{
+    "job": {
+        "properties": {
+            "website_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "website_url": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "job_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "job_url": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "job_type": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "job_pay": {
+                "type": "float"
+            },
+            "recovery_date": {
+                "type": "date",
+                "format": "dateOptionalTime"
+            },
+            "publication_date": {
+                "type": "date",
+                "format": "dateOptionalTime"
+            },
+            "company_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "company_url": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "required_skills": {
+                "type": "string"
+            },
+            "city_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "city_postal_code": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "city_insee_code": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "department_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "department_code": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "region_name": {
+                "type": "string",
+                "analyzer": "autocomplete_analyzer"
+            },
+            "region_code": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "location": {
+                "type": "geo_point"
+            }
+        }
+    }
+}
