@@ -1,6 +1,6 @@
 <?php
 
-// namespace Api;
+namespace Api;
 
 abstract class Website {
     abstract protected function getPageDom($url);

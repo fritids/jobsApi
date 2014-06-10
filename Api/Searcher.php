@@ -11,12 +11,18 @@ class Searcher {
         ));
     }
 
-    public function indexElement($index, $type, $element) {
-        return $this->client->index(array(
+    public function indexElement($index, $type, $element, $id = NULL) {
+        $data = array(
             'index' => $index,
             'type'  => $type,
             'body'  => $element,
-        ));
+        );
+
+        if ($id != NULL) {
+            $data['id'] = $id;
+        }
+
+        return $this->client->index($data);
     }
 }
 

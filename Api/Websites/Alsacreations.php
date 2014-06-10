@@ -1,12 +1,14 @@
 <?php
 
-// namespace Api;
+namespace Api\Websites;
 
 require 'Api/Website.php';
 require 'Api/Job.php';
-// require 'Api/Grubber.php';
+//require 'Api/Grubber.php';
 
-// use Api\Website;
+use Api\Website;
+use Api\Job;
+use Api\Grubber;
 
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\CssSelector\CssSelector;
@@ -47,11 +49,7 @@ class Alsacreations extends Website {
                 $data['websiteUrl']      = $this->url; 
                 $data['jobTitle']        = $link->text();
                 $data['jobUrl']          = $this->url . $link->attr('href');
-                // $data['jobPay']          = $this->extractJobPay();
-                // $data['jobPostalCode']   = $this->extractJobPostalCode();
-                // $data['jobLocation']     = $this->extractJobLocation();
                 $data['companyName']     = $b->text();
-                // $data['requiredSkills']  = $this->extractRequiredSkills();
 
                 $jobHtml = $this->getPageDom($data['jobUrl']);
                 $jobDom  = new Crawler($jobHtml);
