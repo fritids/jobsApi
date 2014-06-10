@@ -4,7 +4,7 @@
 
 require 'Api/Website.php';
 require 'Api/Job.php';
-require 'Api/Grubber.php';
+// require 'Api/Grubber.php';
 
 // use Api\Website;
 
@@ -43,12 +43,13 @@ class Alsacreations extends Website {
                     $data['jobType'] = $span->text();   
                 }
 
+                $data['websiteName']     = $this->website;
+                $data['websiteUrl']      = $this->url; 
                 $data['jobTitle']        = $link->text();
                 $data['jobUrl']          = $this->url . $link->attr('href');
                 // $data['jobPay']          = $this->extractJobPay();
                 // $data['jobPostalCode']   = $this->extractJobPostalCode();
                 // $data['jobLocation']     = $this->extractJobLocation();
-                $data['recoveryDate']    = date('Y-m-d');
                 $data['companyName']     = $b->text();
                 // $data['requiredSkills']  = $this->extractRequiredSkills();
 
@@ -102,11 +103,11 @@ class Alsacreations extends Website {
         }
     }
 
-    private function sendJob($job) {
+    protected function sendJob($job) {
         $this->grubber->sendJob($job);
     }
 
-    private function getPageDom($url) {
+    protected function getPageDom($url) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_COOKIE, 'someCookie=2127;onlineSelection=C');

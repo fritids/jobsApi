@@ -1,12 +1,12 @@
 <?php
 
-// namespace Api;
+namespace Api;
 
 require 'vendor/autoload.php';
 
 class Searcher {
     public function __construct($host, $port) {
-        $this->client = new Elasticsearch\Client(array(
+        $this->client = new \Elasticsearch\Client(array(
             'hosts' => array($host . ':' . $port)
         ));
     }

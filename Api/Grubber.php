@@ -5,10 +5,12 @@
 require 'Api/Searcher.php';
 
 class Grubber {
-    private function sendJob($job) {
-        $searcher = new Searcher();
-        $index    = 'jobs';
+    public function sendJob($job) {
+        $searcher = new Searcher('127.0.0.1', '9200');
+        $index    = 'jobsapi';
         $type     = 'job';
+
+        echo print_r($job, TRUE); exit(0);
 
         // return $searcher->indexElement($index, $type, $job);
     }
