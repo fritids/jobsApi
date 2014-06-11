@@ -14,9 +14,9 @@ class Job {
         $this->jobPay          = (isset($data['jobPay']))         ? $data['jobPay']         : 0;
         $this->jobCityName     = (isset($data['jobCityName']))    ? $data['jobCityName']    : NULL;
         $this->jobPostalCode   = (isset($data['jobPostalCode']))  ? $data['jobPostalCode']  : NULL;
-        $this->jobRegionName   = (isset($data['jobRegionName']))  ? $this->fixRegionName($data['jobRegionName'])  : NULL;
+        $this->jobRegionName   = (isset($data['jobRegionName']))  ? $this->fixRegionName($data['jobRegionName']) : NULL;
         $this->jobLocation     = $this->getLocation();
-        $this->recoveryDate    = date('Y-m-d');
+        $this->recoveryDate    = date('d/m/Y');
         $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
         $this->companyName     = (isset($data['companyName']))     ? $data['companyName']     : NULL;
         $this->companyUrl      = (isset($data['companyUrl']))      ? $data['companyUrl']      : NULL;
@@ -34,6 +34,11 @@ class Job {
         
         $response = json_decode(curl_exec($ch), true);
          
+        // echo print_r(array_keys($response['results'][0]), TRUE);
+
+        echo print_r($response['results'][0]['address_components'], TRUE);
+        echo print_r($response['results'][0]['formatted_address'], TRUE);
+
         // If Status Code is ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED or INVALID_REQUEST
         if ($response['status'] != 'OK') {
             return NULL;
