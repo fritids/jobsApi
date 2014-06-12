@@ -55,7 +55,7 @@ class Job {
     }
 
     private function fixRegionName($regionName) {
-        foreach ($regions as $code => $name) {
+        foreach ($GLOBALS['regions'] as $code => $name) {
             if ($this->slug($regionName) == $this->slug($name)) {
                 return $name;
             }
@@ -94,6 +94,7 @@ class Job {
     
         $string = trim($string);
         $string = str_replace($a, $b, $string);
+        $string = str_replace('-', ' ', $string);
         $string = mb_strtolower($string, 'UTF-8');
 
         return $string;

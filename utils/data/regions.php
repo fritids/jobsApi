@@ -1,6 +1,6 @@
 <?php
 
-$regions = array(
+$GLOBALS['regions'] = array(
     '82' => 'Rhône-Alpes',
     '22' => 'Picardie',
     '83' => 'Auvergne',
