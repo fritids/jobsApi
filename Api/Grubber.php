@@ -11,7 +11,7 @@ class Grubber {
         $type     = 'job';
         $id       = $job->generateId();
 
-        echo print_r($job, TRUE); exit(0);
+        // echo print_r($job, TRUE); exit(0);
 
         return $searcher->indexElement($index, $type, $job, $id);
     }

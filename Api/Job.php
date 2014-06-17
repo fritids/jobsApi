@@ -35,9 +35,8 @@ class Job {
         $response = json_decode(curl_exec($ch), true);
          
         // echo print_r(array_keys($response['results'][0]), TRUE);
-
-        echo print_r($response['results'][0]['address_components'], TRUE);
-        echo print_r($response['results'][0]['formatted_address'], TRUE);
+        // echo print_r($response['results'][0]['address_components'], TRUE);
+        // echo print_r($response['results'][0]['formatted_address'], TRUE);
 
         // If Status Code is ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED or INVALID_REQUEST
         if ($response['status'] != 'OK') {

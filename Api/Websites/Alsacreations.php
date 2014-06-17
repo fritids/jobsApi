@@ -45,11 +45,11 @@ class Alsacreations extends Website {
                     $data['jobType'] = $span->text();   
                 }
 
-                $data['websiteName']     = $this->website;
-                $data['websiteUrl']      = $this->url; 
-                $data['jobTitle']        = $link->text();
-                $data['jobUrl']          = $this->url . $link->attr('href');
-                $data['companyName']     = $b->text();
+                $data['websiteName'] = $this->website;
+                $data['websiteUrl']  = $this->url; 
+                $data['jobTitle']    = $link->text();
+                $data['jobUrl']      = $this->url . $link->attr('href');
+                $data['companyName'] = $b->text();
 
                 $jobHtml = $this->getPageDom($data['jobUrl']);
                 $jobDom  = new Crawler($jobHtml);
@@ -73,7 +73,7 @@ class Alsacreations extends Website {
                 $data['jobRegionName'] = NULL;
 
                 if (isset($matches[2])) {
-                    $data['jobRegionName'] = trim($matches[2], '()'); 
+                    $data['jobRegionName'] = trim($matches[2], '()');
                 }
 
                 $publicationDates = $jobDom->filter('div#emploi p.navinfo > time')->reduce(function($node, $i) {
