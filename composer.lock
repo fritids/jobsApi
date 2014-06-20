@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elasticsearch/elasticsearch-php.git",
-                "reference": "fd304b1c12778c9eab9b1c1a9e07d791f40bd56d"
+                "reference": "7ea796b54f8f71c82be4db92b4f5625abf3c40eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elasticsearch/elasticsearch-php/zipball/fd304b1c12778c9eab9b1c1a9e07d791f40bd56d",
-                "reference": "fd304b1c12778c9eab9b1c1a9e07d791f40bd56d",
+                "url": "https://api.github.com/repos/elasticsearch/elasticsearch-php/zipball/7ea796b54f8f71c82be4db92b4f5625abf3c40eb",
+                "reference": "7ea796b54f8f71c82be4db92b4f5625abf3c40eb",
                 "shasum": ""
             },
             "require": {
@@ -25,7 +25,7 @@
                 "guzzle/guzzle": "~3.7",
                 "monolog/monolog": "~1.5",
                 "php": ">=5.3.9",
-                "pimple/pimple": "~1.0",
+                "pimple/pimple": "~2.0",
                 "psr/log": "~1.0"
             },
             "require-dev": {
@@ -61,7 +61,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "time": "2014-05-07 15:54:46"
+            "time": "2014-06-18 16:48:46"
         },
         {
             "name": "guzzle/guzzle",
@@ -225,16 +225,16 @@
         },
         {
             "name": "pimple/pimple",
-            "version": "v1.1.1",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fabpot/Pimple.git",
-                "reference": "2019c145fe393923f3441b23f29bbdfaa5c58c4d"
+                "reference": "f99b3df12991c22463927aa6a18fd9b2212917f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Pimple/zipball/2019c145fe393923f3441b23f29bbdfaa5c58c4d",
-                "reference": "2019c145fe393923f3441b23f29bbdfaa5c58c4d",
+                "url": "https://api.github.com/repos/fabpot/Pimple/zipball/f99b3df12991c22463927aa6a18fd9b2212917f2",
+                "reference": "f99b3df12991c22463927aa6a18fd9b2212917f2",
                 "shasum": ""
             },
             "require": {
@@ -243,7 +243,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -269,7 +269,7 @@
                 "container",
                 "dependency injection"
             ],
-            "time": "2013-11-22 08:30:29"
+            "time": "2014-02-10 08:05:32"
         },
         {
             "name": "psr/log",
@@ -369,12 +369,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/DomCrawler.git",
-                "reference": "c18697a0775c44b2a08dff0dbae9f6d45e090914"
+                "reference": "e9133c6f7e8a1d547465be1d50f1d99c285ec815"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/c18697a0775c44b2a08dff0dbae9f6d45e090914",
-                "reference": "c18697a0775c44b2a08dff0dbae9f6d45e090914",
+                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/e9133c6f7e8a1d547465be1d50f1d99c285ec815",
+                "reference": "e9133c6f7e8a1d547465be1d50f1d99c285ec815",
                 "shasum": ""
             },
             "require": {
@@ -415,7 +415,7 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "http://symfony.com",
-            "time": "2014-06-03 21:06:30"
+            "time": "2014-06-12 10:01:10"
         },
         {
             "name": "symfony/event-dispatcher",

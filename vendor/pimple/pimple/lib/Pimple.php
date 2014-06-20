@@ -32,7 +32,12 @@
  */
 class Pimple implements ArrayAccess
 {
-    protected $values = array();
+    private $values = array();
+    private $factories;
+    private $protected;
+    private $frozen = array();
+    private $raw = array();
+    private $keys = array();
 
     /**
      * Instantiate the container.
@@ -43,7 +48,12 @@ class Pimple implements ArrayAccess
      */
     public function __construct(array $values = array())
     {
-        $this->values = $values;
+        $this->factories = new \SplObjectStorage();
+        $this->protected = new \SplObjectStorage();
+
+        foreach ($values as $key => $value) {
+            $this->offsetSet($key, $value);
+        }
     }
 
     /**
@@ -53,14 +63,20 @@ class Pimple implements ArrayAccess
      *
      * Allowing any PHP callable leads to difficult to debug problems
      * as function names (strings) are callable (creating a function with
-     * the same a name as an existing parameter would break your container).
+     * the same name as an existing parameter would break your container).
      *
-     * @param string $id    The unique identifier for the parameter or object
-     * @param mixed  $value The value of the parameter or a closure to defined an object
+     * @param  string           $id    The unique identifier for the parameter or object
+     * @param  mixed            $value The value of the parameter or a closure to define an object
+     * @throws RuntimeException Prevent override of a frozen service
      */
     public function offsetSet($id, $value)
     {
+        if (isset($this->frozen[$id])) {
+            throw new RuntimeException(sprintf('Cannot override frozen service "%s".', $id));
+        }
+
         $this->values[$id] = $value;
+        $this->keys[$id] = true;
     }
 
     /**
@@ -74,13 +90,27 @@ class Pimple implements ArrayAccess
      */
     public function offsetGet($id)
     {
-        if (!array_key_exists($id, $this->values)) {
+        if (!isset($this->keys[$id])) {
             throw new InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
         }
 
-        $isFactory = is_object($this->values[$id]) && method_exists($this->values[$id], '__invoke');
+        if (
+            isset($this->raw[$id])
+            || !is_object($this->values[$id])
+            || isset($this->protected[$this->values[$id]])
+            || !method_exists($this->values[$id], '__invoke')
+        ) {
+            return $this->values[$id];
+        }
 
-        return $isFactory ? $this->values[$id]($this) : $this->values[$id];
+        if (isset($this->factories[$this->values[$id]])) {
+            return $this->values[$id]($this);
+        }
+
+        $this->frozen[$id] = true;
+        $this->raw[$id] = $this->values[$id];
+
+        return $this->values[$id] = $this->values[$id]($this);
     }
 
     /**
@@ -102,32 +132,33 @@ class Pimple implements ArrayAccess
      */
     public function offsetUnset($id)
     {
-        unset($this->values[$id]);
+        if (isset($this->keys[$id])) {
+            if (is_object($this->values[$id])) {
+                unset($this->factories[$this->values[$id]], $this->protected[$this->values[$id]]);
+            }
+
+            unset($this->values[$id], $this->frozen[$id], $this->raw[$id], $this->keys[$id]);
+        }
     }
 
     /**
-     * Returns a closure that stores the result of the given service definition
-     * for uniqueness in the scope of this instance of Pimple.
+     * Marks a callable as being a factory service.
      *
-     * @param callable $callable A service definition to wrap for uniqueness
+     * @param callable $callable A service definition to be used as a factory
      *
-     * @return Closure The wrapped closure
+     * @return callable The passed callable
+     *
+     * @throws InvalidArgumentException Service definition has to be a closure of an invokable object
      */
-    public static function share($callable)
+    public function factory($callable)
     {
         if (!is_object($callable) || !method_exists($callable, '__invoke')) {
             throw new InvalidArgumentException('Service definition is not a Closure or invokable object.');
         }
 
-        return function ($c) use ($callable) {
-            static $object;
+        $this->factories->attach($callable);
 
-            if (null === $object) {
-                $object = $callable($c);
-            }
-
-            return $object;
-        };
+        return $callable;
     }
 
     /**
@@ -137,17 +168,19 @@ class Pimple implements ArrayAccess
      *
      * @param callable $callable A callable to protect from being evaluated
      *
-     * @return Closure The protected closure
+     * @return callable The passed callable
+     *
+     * @throws InvalidArgumentException Service definition has to be a closure of an invokable object
      */
-    public static function protect($callable)
+    public function protect($callable)
     {
         if (!is_object($callable) || !method_exists($callable, '__invoke')) {
             throw new InvalidArgumentException('Callable is not a Closure or invokable object.');
         }
 
-        return function ($c) use ($callable) {
-            return $callable;
-        };
+        $this->protected->attach($callable);
+
+        return $callable;
     }
 
     /**
@@ -161,8 +194,12 @@ class Pimple implements ArrayAccess
      */
     public function raw($id)
     {
-        if (!array_key_exists($id, $this->values)) {
+        if (!isset($this->keys[$id])) {
             throw new InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
+        }
+
+        if (isset($this->raw[$id])) {
+            return $this->raw[$id];
         }
 
         return $this->values[$id];
@@ -174,16 +211,16 @@ class Pimple implements ArrayAccess
      * Useful when you want to extend an existing object definition,
      * without necessarily loading that object.
      *
-     * @param string $id       The unique identifier for the object
+     * @param string   $id       The unique identifier for the object
      * @param callable $callable A service definition to extend the original
      *
-     * @return Closure The wrapped closure
+     * @return callable The wrapped callable
      *
      * @throws InvalidArgumentException if the identifier is not defined or not a service definition
      */
     public function extend($id, $callable)
     {
-        if (!array_key_exists($id, $this->values)) {
+        if (!isset($this->keys[$id])) {
             throw new InvalidArgumentException(sprintf('Identifier "%s" is not defined.', $id));
         }
 
@@ -197,9 +234,16 @@ class Pimple implements ArrayAccess
 
         $factory = $this->values[$id];
 
-        return $this->values[$id] = function ($c) use ($callable, $factory) {
+        $extended = function ($c) use ($callable, $factory) {
             return $callable($factory($c), $c);
         };
+
+        if (isset($this->factories[$factory])) {
+            $this->factories->detach($factory);
+            $this->factories->attach($extended);
+        }
+
+        return $this[$id] = $extended;
     }
 
     /**

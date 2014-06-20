@@ -57,9 +57,9 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     public function testServicesShouldBeDifferent()
     {
         $pimple = new Pimple();
-        $pimple['service'] = function () {
+        $pimple['service'] = $pimple->factory(function () {
             return new Service();
-        };
+        });
 
         $serviceOne = $pimple['service'];
         $this->assertInstanceOf('Pimple\Tests\Service', $serviceOne);
@@ -144,7 +144,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     public function testShare($service)
     {
         $pimple = new Pimple();
-        $pimple['shared_service'] = $pimple->share($service);
+        $pimple['shared_service'] = $service;
 
         $serviceOne = $pimple['shared_service'];
         $this->assertInstanceOf('Pimple\Tests\Service', $serviceOne);
@@ -176,7 +176,7 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     public function testRaw()
     {
         $pimple = new Pimple();
-        $pimple['service'] = $definition = function () { return 'foo'; };
+        $pimple['service'] = $definition = $pimple->factory(function () { return 'foo'; });
         $this->assertSame($definition, $pimple->raw('service'));
     }
 
@@ -203,20 +203,45 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
     public function testExtend($service)
     {
         $pimple = new Pimple();
-        $pimple['shared_service'] = $pimple->share(function () {
+        $pimple['shared_service'] = function () {
+            return new Service();
+        };
+        $pimple['factory_service'] = $pimple->factory(function () {
             return new Service();
         });
 
         $pimple->extend('shared_service', $service);
-
         $serviceOne = $pimple['shared_service'];
         $this->assertInstanceOf('Pimple\Tests\Service', $serviceOne);
-
         $serviceTwo = $pimple['shared_service'];
         $this->assertInstanceOf('Pimple\Tests\Service', $serviceTwo);
-
-        $this->assertNotSame($serviceOne, $serviceTwo);
+        $this->assertSame($serviceOne, $serviceTwo);
         $this->assertSame($serviceOne->value, $serviceTwo->value);
+
+        $pimple->extend('factory_service', $service);
+        $serviceOne = $pimple['factory_service'];
+        $this->assertInstanceOf('Pimple\Tests\Service', $serviceOne);
+        $serviceTwo = $pimple['factory_service'];
+        $this->assertInstanceOf('Pimple\Tests\Service', $serviceTwo);
+        $this->assertNotSame($serviceOne, $serviceTwo);
+        $this->assertNotSame($serviceOne->value, $serviceTwo->value);
+    }
+
+    public function testExtendDoesNotLeakWithFactories()
+    {
+        $pimple = new Pimple();
+
+        $pimple['foo'] = $pimple->factory(function () { return; });
+        $pimple['foo'] = $pimple->extend('foo', function ($foo, $pimple) { return; });
+        unset($pimple['foo']);
+
+        $p = new \ReflectionProperty($pimple, 'values');
+        $p->setAccessible(true);
+        $this->assertEmpty($p->getValue($pimple));
+
+        $p = new \ReflectionProperty($pimple, 'factories');
+        $p->setAccessible(true);
+        $this->assertCount(0, $p->getValue($pimple));
     }
 
     /**
@@ -261,10 +286,10 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Service definition is not a Closure or invokable object.
      */
-    public function testShareFailsForInvalidServiceDefinitions($service)
+    public function testFactoryFailsForInvalidServiceDefinitions($service)
     {
         $pimple = new Pimple();
-        $pimple->share($service);
+        $pimple->factory($service);
     }
 
     /**
@@ -327,5 +352,83 @@ class PimpleTest extends \PHPUnit_Framework_TestCase
             }),
             array(new Invokable())
         );
+    }
+
+    public function testDefiningNewServiceAfterFreeze()
+    {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () {
+            return 'foo';
+        };
+        $foo = $pimple['foo'];
+
+        $pimple['bar'] = function () {
+            return 'bar';
+        };
+        $this->assertSame('bar', $pimple['bar']);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Cannot override frozen service "foo".
+     */
+    public function testOverridingServiceAfterFreeze()
+    {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () {
+            return 'foo';
+        };
+        $foo = $pimple['foo'];
+
+        $pimple['foo'] = function () {
+            return 'bar';
+        };
+    }
+
+    public function testRemovingServiceAfterFreeze()
+    {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () {
+            return 'foo';
+        };
+        $foo = $pimple['foo'];
+
+        unset($pimple['foo']);
+        $pimple['foo'] = function () {
+            return 'bar';
+        };
+        $this->assertSame('bar', $pimple['foo']);
+    }
+
+    public function testExtendingService()
+    {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () {
+            return 'foo';
+        };
+        $pimple['foo'] = $pimple->extend('foo', function ($foo, $app) {
+            return "$foo.bar";
+        });
+        $pimple['foo'] = $pimple->extend('foo', function ($foo, $app) {
+            return "$foo.baz";
+        });
+        $this->assertSame('foo.bar.baz', $pimple['foo']);
+    }
+
+    public function testExtendingServiceAfterOtherServiceFreeze()
+    {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () {
+            return 'foo';
+        };
+        $pimple['bar'] = function () {
+            return 'bar';
+        };
+        $foo = $pimple['foo'];
+
+        $pimple['bar'] = $pimple->extend('bar', function ($bar, $app) {
+            return "$bar.baz";
+        });
+        $this->assertSame('bar.baz', $pimple['bar']);
     }
 }
