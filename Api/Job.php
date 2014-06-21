@@ -19,6 +19,8 @@ class Job {
         $this->companyUrl   = (isset($data['companyUrl']))  ? $data['companyUrl']  : NULL;
         $this->recoveryDate = date('d/m/Y');
 
+        $this->cityData = array();
+
         // Data considered as not safe and need to be normalized
         $this->jobPostalCode   = (isset($data['jobPostalCode']))   ? $data['jobPostalCode']   : NULL;
         $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
@@ -33,11 +35,11 @@ class Job {
 
     private function normalizeJobCityName($jobCityName) {
         if (empty($jobCityName) === FALSE) {
-            $feeder   = new Feeder('127.0.0.1', 9200);
-            $cityData = $feeder->searchForNormalize('jobsapi', 'job', 'jobCityName', $jobCityName);
+            $feeder         = new Feeder('127.0.0.1', 9200);
+            $this->cityData = $feeder->searchForNormalize('jobsapi', 'job', 'jobCityName', $jobCityName);
 
-            if (empty($cityData) === FALSE && empty($cityData['_source']['jobCityName']) === FALSE) {
-                return $cityData['_source']['jobCityName'];
+            if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['jobCityName']) === FALSE) {
+                return $this->cityData['_source']['jobCityName'];
             }
         }
 
