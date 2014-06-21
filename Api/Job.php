@@ -6,21 +6,25 @@ require 'utils/data/regions.php';
 
 class Job {
     public function __construct($data) {
-        $this->websiteName     = (isset($data['websiteName']))   ? $data['websiteName']    : NULL;
-        $this->websiteUrl      = (isset($data['websiteUrl']))    ? $data['websiteUrl']     : NULL;
-        $this->jobTitle        = (isset($data['jobTitle']))      ? $data['jobTitle']       : NULL;
-        $this->jobUrl          = (isset($data['jobUrl']))        ? $data['jobUrl']         : NULL;
-        $this->jobType         = $this->normalizeJobType($data['jobType']);
-        $this->jobPay          = (isset($data['jobPay']))        ? $data['jobPay']         : 0;
-        $this->jobCityName     = (isset($data['jobCityName']))   ? $data['jobCityName']    : NULL;
-        $this->jobPostalCode   = (isset($data['jobPostalCode'])) ? $data['jobPostalCode']  : NULL;
-        $this->jobRegionName   = $this->normalizeRegionName($data['jobRegionName']);
-        $this->jobLocation     = $this->getLocation();
-        $this->recoveryDate    = date('d/m/Y');
+        // Data considered as safe
+        $this->websiteName  = (isset($data['websiteName'])) ? $data['websiteName'] : NULL;
+        $this->websiteUrl   = (isset($data['websiteUrl']))  ? $data['websiteUrl']  : NULL;
+        $this->jobTitle     = (isset($data['jobTitle']))    ? $data['jobTitle']    : NULL;
+        $this->jobUrl       = (isset($data['jobUrl']))      ? $data['jobUrl']      : NULL;
+        $this->companyName  = (isset($data['companyName'])) ? $data['companyName'] : NULL;
+        $this->companyUrl   = (isset($data['companyUrl']))  ? $data['companyUrl']  : NULL;
+        $this->recoveryDate = date('d/m/Y');
+
+        // Data considered as not safe and need to be normalized
+        $this->jobCityName     = (isset($data['jobCityName']))     ? $data['jobCityName']     : NULL;
+        $this->jobPostalCode   = (isset($data['jobPostalCode']))   ? $data['jobPostalCode']   : NULL;
         $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
-        $this->companyName     = (isset($data['companyName']))     ? $data['companyName']     : NULL;
-        $this->companyUrl      = (isset($data['companyUrl']))      ? $data['companyUrl']      : NULL;
         $this->requiredSkills  = (isset($data['requiredSkills']))  ? $data['requiredSkills']  : array();
+        
+        $this->jobPay        = $this->normalizeJobPay(['jobPay']);
+        $this->jobType       = $this->normalizeJobType($data['jobType']);
+        $this->jobRegionName = $this->normalizeRegionName($data['jobRegionName']);
+        $this->jobLocation   = $this->getLocation();
     }
 
     private function getLocation() {
@@ -53,6 +57,32 @@ class Job {
         );
     }
 
+    private function normalizeJobPay($jobPay) {
+        if (empty($jobPay) === FALSE) {
+            if (is_float($jobPay) === FALSE)
+                $jobPay = (float) $jobPay;
+
+                if ($jobPay >= 0 && $jobPay <= 100000) {
+                    return $jobPay
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private function normalizeJobType($jobType) {
+        if (empty($jobType) === FALSE) {
+            foreach ($$GLOBALS['jobsTypes'] as $type) {
+                if ($this->slug($jobType) == $this->slug($type)) {
+                    return $type;
+                }
+            }
+        }
+        
+        return NULL;
+    }
+
     private function normalizeRegionName($regionName) {
         if (! empty($regionName)) {
             foreach ($GLOBALS['regions'] as $code => $name) {
@@ -62,18 +92,6 @@ class Job {
             }
         }
 
-        return NULL;
-    }
-
-    private function normalizeJobType($jobType) {
-        if (! empty($jobType)) {
-            foreach ($$GLOBALS['jobsTypes'] as $type) {
-                if ($this->slug($jobType) == $this->slug($type)) {
-                    return $type;
-                }
-            }
-        }
-        
         return NULL;
     }
 
