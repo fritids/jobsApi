@@ -26,6 +26,31 @@ class Feeder {
 
         return $this->client->index($data);
     }
+
+    public function searchForNormalize($index, $type, $field, $data) {
+        $query = array(
+            'index' => $index,
+            'type'  => $type,
+            'body'  => array(
+                'query' => array(
+                    'match_all' => array()
+                ),
+                'filter' => array(
+                    'term' => array(
+                        $field => 'paris'
+                    )
+                )
+            )
+        );
+
+        $results = $this->client->search($query);
+
+        if (empty($results) === FALSE) {
+            return $results[0];
+        }
+
+        return NULL;
+    }
 }
 
 ?>

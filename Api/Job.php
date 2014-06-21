@@ -3,6 +3,10 @@
 namespace Api;
 
 require 'utils/data/regions.php';
+require 'utils/data/jobsTypes.php';
+require 'Api/Feeder.php';
+
+use Api\Feeder;
 
 class Job {
     public function __construct($data) {
@@ -16,20 +20,71 @@ class Job {
         $this->recoveryDate = date('d/m/Y');
 
         // Data considered as not safe and need to be normalized
-        $this->jobCityName     = (isset($data['jobCityName']))     ? $data['jobCityName']     : NULL;
         $this->jobPostalCode   = (isset($data['jobPostalCode']))   ? $data['jobPostalCode']   : NULL;
         $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
         $this->requiredSkills  = (isset($data['requiredSkills']))  ? $data['requiredSkills']  : array();
         
+        $this->jobCityName   = $this->normalizeJobCityName(['jobCityName']);
         $this->jobPay        = $this->normalizeJobPay(['jobPay']);
         $this->jobType       = $this->normalizeJobType($data['jobType']);
         $this->jobRegionName = $this->normalizeRegionName($data['jobRegionName']);
         $this->jobLocation   = $this->getLocation();
     }
 
+    private function normalizeJobCityName($jobCityName) {
+        if (empty($jobCityName) === FALSE) {
+            $feeder   = new Feeder('127.0.0.1', 9200);
+            $cityData = $feeder->searchForNormalize('jobsapi', 'job', 'jobCityName', $jobCityName);
+
+            if (empty($cityData) === FALSE && empty($cityData['_source']['jobCityName']) === FALSE) {
+                return $cityData['_source']['jobCityName'];
+            }
+        }
+
+        return NULL;
+    }
+
+    private function normalizeJobPay($jobPay) {
+        if (empty($jobPay) === FALSE) {
+            if (is_float($jobPay) === FALSE) {
+                $jobPay = (float) $jobPay;
+
+                if ($jobPay >= 0 && $jobPay <= 100000) {
+                    return $jobPay;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    private function normalizeJobType($jobType) {
+        if (empty($jobType) === FALSE) {
+            foreach ($GLOBALS['jobsTypes'] as $type) {
+                if ($this->slug($jobType) == $this->slug($type)) {
+                    return $type;
+                }
+            }
+        }
+        
+        return NULL;
+    }
+
+    private function normalizeRegionName($regionName) {
+        if (empty($regionName) === FALSE) {
+            foreach ($GLOBALS['regions'] as $code => $name) {
+                if ($this->slug($regionName) == $this->slug($name)) {
+                    return $name;
+                }
+            }
+        }
+
+        return NULL;
+    }
+
     private function getLocation() {
         $string = str_replace (' ', '+', urlencode($this->jobCityName . ' ' . $this->jobRegionName));
-        $api    = "http://maps.googleapis.com/maps/api/geocode/json?address=" . $string . "&sensor=false";
+        $api    = 'http://maps.googleapis.com/maps/api/geocode/json?address=' . $string . '&sensor=false';
          
         $ch = curl_init();
         
@@ -55,44 +110,6 @@ class Job {
             'lat' => $geometry['location']['lng'],
             'lon' => $geometry['location']['lat'],
         );
-    }
-
-    private function normalizeJobPay($jobPay) {
-        if (empty($jobPay) === FALSE) {
-            if (is_float($jobPay) === FALSE)
-                $jobPay = (float) $jobPay;
-
-                if ($jobPay >= 0 && $jobPay <= 100000) {
-                    return $jobPay
-                }
-            }
-        }
-
-        return 0;
-    }
-
-    private function normalizeJobType($jobType) {
-        if (empty($jobType) === FALSE) {
-            foreach ($$GLOBALS['jobsTypes'] as $type) {
-                if ($this->slug($jobType) == $this->slug($type)) {
-                    return $type;
-                }
-            }
-        }
-        
-        return NULL;
-    }
-
-    private function normalizeRegionName($regionName) {
-        if (! empty($regionName)) {
-            foreach ($GLOBALS['regions'] as $code => $name) {
-                if ($this->slug($regionName) == $this->slug($name)) {
-                    return $name;
-                }
-            }
-        }
-
-        return NULL;
     }
 
     private function slug($string) {
