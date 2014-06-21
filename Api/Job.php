@@ -10,24 +10,30 @@ use Api\Feeder;
 
 class Job {
     public function __construct($data) {
+        $this->feeder = new Feeder('127.0.0.1', 9200);
+
         // Data considered as safe
-        $this->websiteName  = (isset($data['websiteName'])) ? $data['websiteName'] : NULL;
-        $this->websiteUrl   = (isset($data['websiteUrl']))  ? $data['websiteUrl']  : NULL;
-        $this->jobTitle     = (isset($data['jobTitle']))    ? $data['jobTitle']    : NULL;
-        $this->jobUrl       = (isset($data['jobUrl']))      ? $data['jobUrl']      : NULL;
-        $this->companyName  = (isset($data['companyName'])) ? $data['companyName'] : NULL;
-        $this->companyUrl   = (isset($data['companyUrl']))  ? $data['companyUrl']  : NULL;
+        $this->websiteName     = (isset($data['websiteName']))     ? $data['websiteName']     : NULL;
+        $this->websiteUrl      = (isset($data['websiteUrl']))      ? $data['websiteUrl']      : NULL;
+        $this->jobTitle        = (isset($data['jobTitle']))        ? $data['jobTitle']        : NULL;
+        $this->jobUrl          = (isset($data['jobUrl']))          ? $data['jobUrl']          : NULL;
+        $this->companyName     = (isset($data['companyName']))     ? $data['companyName']     : NULL;
+        $this->companyUrl      = (isset($data['companyUrl']))      ? $data['companyUrl']      : NULL;
+        $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
         $this->recoveryDate = date('d/m/Y');
 
         $this->cityData = array();
 
+        if (empty($jobCityName) === FALSE) {
+            $this->cityData = $this->feeder->searchForNormalize('jobsapi', 'job', 'jobCityName', $jobCityName);
+        }
+
         // Data considered as not safe and need to be normalized
-        $this->jobPostalCode   = (isset($data['jobPostalCode']))   ? $data['jobPostalCode']   : NULL;
-        $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
-        $this->requiredSkills  = (isset($data['requiredSkills']))  ? $data['requiredSkills']  : array();
+        $this->requiredSkills  = (isset($data['requiredSkills'])) ? $data['requiredSkills'] : array();
         
-        $this->jobCityName   = $this->normalizeJobCityName(['jobCityName']);
-        $this->jobPay        = $this->normalizeJobPay(['jobPay']);
+        $this->jobCityName   = $this->normalizeJobCityName($data['jobCityName']);
+        $this->jobPostalCode = $this->normalizeJobPostalCode($data['jobPostalCode']);
+        $this->jobPay        = $this->normalizeJobPay($data['jobPay']);
         $this->jobType       = $this->normalizeJobType($data['jobType']);
         $this->jobRegionName = $this->normalizeRegionName($data['jobRegionName']);
         $this->jobLocation   = $this->getLocation();
@@ -35,11 +41,18 @@ class Job {
 
     private function normalizeJobCityName($jobCityName) {
         if (empty($jobCityName) === FALSE) {
-            $feeder         = new Feeder('127.0.0.1', 9200);
-            $this->cityData = $feeder->searchForNormalize('jobsapi', 'job', 'jobCityName', $jobCityName);
-
             if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['jobCityName']) === FALSE) {
                 return $this->cityData['_source']['jobCityName'];
+            }
+        }
+
+        return NULL;
+    }
+
+    private function normalizeJobPostalCode($jobPostalCode) {
+        if (empty($jobPostalCode) === FALSE) {
+            if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['jobPostalCode']) === FALSE) {
+                return $this->cityData['_source']['jobPostalCode'];
             }
         }
 
@@ -82,6 +95,24 @@ class Job {
         }
 
         return NULL;
+    }
+
+    private function normalizeRequiredSkills($requiredSkills) {
+        if (empty($requiredSkills) === FALSE) {
+            $normalizedSkills = array();
+
+            foreach ($requiredSkills as $skill) {
+                foreach ($GLOBALS['requiredSkills'] as $name) {
+                    if ($this->slug($skill) == $this->slug($name)) {
+                        $normalizedSkills []= $name;
+                    }
+                }
+            }
+
+            return $normalizedSkills;
+        }
+
+        return array();
     }
 
     private function getLocation() {

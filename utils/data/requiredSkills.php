@@ -1,0 +1,63 @@
+<?php
+
+$GLOBALS['requiredSkills'] = array(
+    'Symfony',
+    'Symfony1',
+    'Symfony2',
+    'Drupal',
+    'CMS',
+    'Wordpress',
+    'Joomla',
+    'PHP',
+    'PHP5',
+    'MySQL',
+    'HTML'
+    'XHTML',
+    'CSS',
+    'CSS3',
+    'Javascript',
+    'JS',
+    'jQuery',
+    'Angular JS'
+    'AngularJS',
+    'Java',
+    'Scala',
+    'Nginx',
+    'NET',
+    '.NET',
+    'C#',
+    'C',
+    'C++',
+    'Python'
+    'Ruby',
+    'Ruby on Rails',
+    'XML',
+    'Bash',
+    'Shell',
+    'Shell script',
+    'Linux',
+    'Unix',
+    'Référencement',
+    'SEO',
+    'Développement',
+    'Web',
+    'Graphisme',
+    'Photoshop',
+    'Illustrator',
+    'Responsive',
+    'Responsive design',
+    'Bootstrap',
+    'Phonegap',
+    'Analytics',
+    'Adwords',
+    'Oracle',
+    'PostgreSQL'
+    'MongoDB',
+    'Suivi projet',
+    'GIT',
+    'SVN',
+    'Mercurial',
+    'Data'
+);
+
+?>
