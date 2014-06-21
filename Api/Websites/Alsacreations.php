@@ -4,7 +4,7 @@ namespace Api\Websites;
 
 require 'Api/Website.php';
 require 'Api/Job.php';
-require 'Api/Feeder';
+require 'Api/Feeder.php';
 
 use Api\Website;
 use Api\Job;
@@ -24,7 +24,7 @@ class Alsacreations extends Website {
         $this->userAgent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 GTB5';
         $this->html      = $this->getPageDom($this->url);
         $this->crawler   = new Crawler($this->html);
-        $this->feeder   = new Feeder();
+        $this->feeder    = new Feeder('127.0.0.1', 9200);
     }
 
     public function crawl() {
@@ -96,13 +96,9 @@ class Alsacreations extends Website {
 
                 $job = new Job($data);
 
-                $this->sendJob($job);
+                $this->feeder->indexElement('jobsApi', 'job', $job);
             });
         }
-    }
-
-    protected function sendJob($job) {
-        $this->feeder->sendJob($job);
     }
 
     protected function getPageDom($url) {

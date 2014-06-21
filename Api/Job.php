@@ -6,15 +6,15 @@ require 'utils/data/regions.php';
 
 class Job {
     public function __construct($data) {
-        $this->websiteName     = (isset($data['websiteName']))    ? $data['websiteName']    : NULL;
-        $this->websiteUrl      = (isset($data['websiteUrl']))     ? $data['websiteUrl']     : NULL;
-        $this->jobTitle        = (isset($data['jobTitle']))       ? $data['jobTitle']       : NULL;
-        $this->jobUrl          = (isset($data['jobUrl']))         ? $data['jobUrl']         : NULL;
-        $this->jobType         = (isset($data['jobType']))        ? $data['jobType']        : NULL;
-        $this->jobPay          = (isset($data['jobPay']))         ? $data['jobPay']         : 0;
-        $this->jobCityName     = (isset($data['jobCityName']))    ? $data['jobCityName']    : NULL;
-        $this->jobPostalCode   = (isset($data['jobPostalCode']))  ? $data['jobPostalCode']  : NULL;
-        $this->jobRegionName   = (isset($data['jobRegionName']))  ? $this->fixRegionName($data['jobRegionName']) : NULL;
+        $this->websiteName     = (isset($data['websiteName']))   ? $data['websiteName']    : NULL;
+        $this->websiteUrl      = (isset($data['websiteUrl']))    ? $data['websiteUrl']     : NULL;
+        $this->jobTitle        = (isset($data['jobTitle']))      ? $data['jobTitle']       : NULL;
+        $this->jobUrl          = (isset($data['jobUrl']))        ? $data['jobUrl']         : NULL;
+        $this->jobType         = (isset($data['jobType']))       ? $data['jobType']        : NULL;
+        $this->jobPay          = (isset($data['jobPay']))        ? $data['jobPay']         : 0;
+        $this->jobCityName     = (isset($data['jobCityName']))   ? $data['jobCityName']    : NULL;
+        $this->jobPostalCode   = (isset($data['jobPostalCode'])) ? $data['jobPostalCode']  : NULL;
+        $this->jobRegionName   = (isset($data['jobRegionName'])) ? $this->fixRegionName($data['jobRegionName']) : NULL;
         $this->jobLocation     = $this->getLocation();
         $this->recoveryDate    = date('d/m/Y');
         $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
@@ -60,7 +60,7 @@ class Job {
             }
         }
     }
-
+    
     private function slug($string) {
         $a = array(
             'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð',
@@ -100,9 +100,7 @@ class Job {
     }
 
     public function generateId() {
-        $string = $this->slug($this->jobTitle) . $this->slug($this->companyName) . $this->slug($this->jobType);
-
-        return md5($string);
+        return md5($this->slug($this->jobTitle) . $this->slug($this->companyName) . $this->slug($this->jobType));
     }
 }
 
