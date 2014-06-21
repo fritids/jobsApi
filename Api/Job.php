@@ -10,7 +10,7 @@ class Job {
         $this->websiteUrl      = (isset($data['websiteUrl']))    ? $data['websiteUrl']     : NULL;
         $this->jobTitle        = (isset($data['jobTitle']))      ? $data['jobTitle']       : NULL;
         $this->jobUrl          = (isset($data['jobUrl']))        ? $data['jobUrl']         : NULL;
-        $this->jobType         = (isset($data['jobType']))       ? $data['jobType']        : NULL;
+        $this->jobType         = normalizeJobType($data['jobType']);
         $this->jobPay          = (isset($data['jobPay']))        ? $data['jobPay']         : 0;
         $this->jobCityName     = (isset($data['jobCityName']))   ? $data['jobCityName']    : NULL;
         $this->jobPostalCode   = (isset($data['jobPostalCode'])) ? $data['jobPostalCode']  : NULL;
@@ -60,7 +60,19 @@ class Job {
             }
         }
     }
-    
+
+    private function normalizeJobType($jobType) {
+        if (! empty($jobType)) {
+            foreach ($$GLOBALS['jobsTypes'] as $type) {
+                if ($this->slug($jobType) == $this->slug($type)) {
+                    return $type;
+                }
+            }
+        }
+        
+        return NULL;
+    }
+
     private function slug($string) {
         $a = array(
             'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð',
