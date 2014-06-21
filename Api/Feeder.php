@@ -11,6 +11,17 @@ class Searcher {
         ));
     }
 
+    public function sendJob($job) {
+        $searcher = new Searcher('127.0.0.1', '9200');
+        $index    = 'jobsapi';
+        $type     = 'job';
+        $id       = $job->generateId();
+
+        // echo print_r($job, TRUE); exit(0);
+
+        return $searcher->indexElement($index, $type, $job, $id);
+    }
+
     public function indexElement($index, $type, $element, $id = NULL) {
         $data = array(
             'index' => $index,

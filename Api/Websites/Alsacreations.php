@@ -4,11 +4,11 @@ namespace Api\Websites;
 
 require 'Api/Website.php';
 require 'Api/Job.php';
-//require 'Api/Grubber.php';
+require 'Api/Feeder';
 
 use Api\Website;
 use Api\Job;
-use Api\Grubber;
+use Api\Feeder;
 
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\CssSelector\CssSelector;
@@ -24,7 +24,7 @@ class Alsacreations extends Website {
         $this->userAgent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 GTB5';
         $this->html      = $this->getPageDom($this->url);
         $this->crawler   = new Crawler($this->html);
-        $this->grubber   = new Grubber();
+        $this->feeder   = new Feeder();
     }
 
     public function crawl() {
@@ -102,7 +102,7 @@ class Alsacreations extends Website {
     }
 
     protected function sendJob($job) {
-        $this->grubber->sendJob($job);
+        $this->feeder->sendJob($job);
     }
 
     protected function getPageDom($url) {
