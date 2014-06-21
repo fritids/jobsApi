@@ -10,11 +10,11 @@ class Job {
         $this->websiteUrl      = (isset($data['websiteUrl']))    ? $data['websiteUrl']     : NULL;
         $this->jobTitle        = (isset($data['jobTitle']))      ? $data['jobTitle']       : NULL;
         $this->jobUrl          = (isset($data['jobUrl']))        ? $data['jobUrl']         : NULL;
-        $this->jobType         = normalizeJobType($data['jobType']);
+        $this->jobType         = $this->normalizeJobType($data['jobType']);
         $this->jobPay          = (isset($data['jobPay']))        ? $data['jobPay']         : 0;
         $this->jobCityName     = (isset($data['jobCityName']))   ? $data['jobCityName']    : NULL;
         $this->jobPostalCode   = (isset($data['jobPostalCode'])) ? $data['jobPostalCode']  : NULL;
-        $this->jobRegionName   = (isset($data['jobRegionName'])) ? $this->fixRegionName($data['jobRegionName']) : NULL;
+        $this->jobRegionName   = $this->normalizeRegionName($data['jobRegionName']);
         $this->jobLocation     = $this->getLocation();
         $this->recoveryDate    = date('d/m/Y');
         $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
@@ -53,12 +53,16 @@ class Job {
         );
     }
 
-    private function fixRegionName($regionName) {
-        foreach ($GLOBALS['regions'] as $code => $name) {
-            if ($this->slug($regionName) == $this->slug($name)) {
-                return $name;
+    private function normalizeRegionName($regionName) {
+        if (! empty($regionName)) {
+            foreach ($GLOBALS['regions'] as $code => $name) {
+                if ($this->slug($regionName) == $this->slug($name)) {
+                    return $name;
+                }
             }
         }
+
+        return NULL;
     }
 
     private function normalizeJobType($jobType) {
