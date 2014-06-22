@@ -61,6 +61,12 @@ class Job implements SplSubject {
         return $this;
     }
 
+    public function notify() {
+        foreach ($this->_observer as $o) {
+            $o->update($this);
+        }
+    }
+
     private function normalizeJobCityName($jobCityName) {
         if (empty($jobCityName) === FALSE) {
             if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['jobCityName']) === FALSE) {
@@ -173,6 +179,7 @@ class Job implements SplSubject {
 
     public function indexElement() {
         $this->feeder->indexElement('jobsapi', 'job', $this->data);
+        $this->notify();
     }
 }
 
