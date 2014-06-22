@@ -2,7 +2,7 @@
 
 namespace Api;
 
-class Util {
+class Utils {
     public static function slug($string) {
         $a = array(
             'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð',

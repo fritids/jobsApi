@@ -12,7 +12,7 @@ class Feeder {
     }
 
     public function indexElement($index, $type, $element, $id = NULL) {
-        echo print_r($element, TRUE); exit(0);
+        echo print_r($element, TRUE); // exit(0);
 
         $data = array(
             'index' => $index,
@@ -24,7 +24,7 @@ class Feeder {
             $data['id'] = $id;
         }
 
-        return $this->client->index($data);
+        // return $this->client->index($data);
     }
 
     public function searchForNormalize($index, $type, $field, $data) {

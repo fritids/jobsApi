@@ -4,8 +4,9 @@ namespace Api;
 
 require 'utils/data/regions.php';
 require 'utils/data/jobsTypes.php';
+require 'utils/data/requiredSkills.php';
 require 'Api/Feeder.php';
-require 'Api/Util.php';
+require 'Api/Utils.php';
 
 use Api\Feeder;
 use Api\Utils;
@@ -13,16 +14,17 @@ use Api\Utils;
 class Job {
     public function __construct($data) {
         $this->feeder = new Feeder('127.0.0.1', 9200);
+        $this->data   = array();
 
         // Data considered as safe
-        $this->websiteName     = (isset($data['websiteName']))     ? $data['websiteName']     : NULL;
-        $this->websiteUrl      = (isset($data['websiteUrl']))      ? $data['websiteUrl']      : NULL;
-        $this->jobTitle        = (isset($data['jobTitle']))        ? $data['jobTitle']        : NULL;
-        $this->jobUrl          = (isset($data['jobUrl']))          ? $data['jobUrl']          : NULL;
-        $this->companyName     = (isset($data['companyName']))     ? $data['companyName']     : NULL;
-        $this->companyUrl      = (isset($data['companyUrl']))      ? $data['companyUrl']      : NULL;
-        $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
-        $this->recoveryDate    = date('d/m/Y');
+        $this->data['websiteName']     = (isset($data['websiteName']))     ? $data['websiteName']     : NULL;
+        $this->data['websiteUrl']      = (isset($data['websiteUrl']))      ? $data['websiteUrl']      : NULL;
+        $this->data['jobTitle']        = (isset($data['jobTitle']))        ? $data['jobTitle']        : NULL;
+        $this->data['jobUrl']          = (isset($data['jobUrl']))          ? $data['jobUrl']          : NULL;
+        $this->data['companyName']     = (isset($data['companyName']))     ? $data['companyName']     : NULL;
+        $this->data['companyUrl']      = (isset($data['companyUrl']))      ? $data['companyUrl']      : NULL;
+        $this->data['publicationDate'] = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
+        $this->data['recoveryDate']    = date('d/m/Y');
 
         $this->cityData = array();
 
@@ -31,13 +33,14 @@ class Job {
         }
 
         // Data considered as not safe and need to be normalized        
-        $this->jobCityName    = $this->normalizeJobCityName($data['jobCityName']);
-        $this->jobPostalCode  = $this->normalizeJobPostalCode($data['jobPostalCode']);
-        $this->jobPay         = $this->normalizeJobPay($data['jobPay']);
-        $this->jobType        = $this->normalizeJobType($data['jobType']);
-        $this->jobRegionName  = $this->normalizeRegionName($data['jobRegionName']);
-        $this->requiredSkills = $this->normalizeRequiredSkills($data['requiredSkills']);
-        $this->jobLocation    = $this->getLocation();
+        $this->data['jobCityName']   = $this->normalizeJobCityName($data['jobCityName']);
+        $this->data['jobPostalCode'] = $this->normalizeJobPostalCode($data['jobCityName']);
+        //$this->jobPostalCode  = $this->normalizeJobPostalCode($data['jobPostalCode']);
+        // $this->jobPay         = $this->normalizeJobPay($data['jobPay']);
+        $this->data['jobType']        = $this->normalizeJobType($data['jobType']);
+        $this->data['jobRegionName']  = $this->normalizeRegionName($data['jobRegionName']);
+        $this->data['requiredSkills'] = $this->normalizeRequiredSkills($data['requiredSkills']);
+        $this->data['jobLocation']    = $this->getLocation();
     }
 
     private function normalizeJobCityName($jobCityName) {
@@ -50,8 +53,8 @@ class Job {
         return NULL;
     }
 
-    private function normalizeJobPostalCode($jobPostalCode) {
-        if (empty($jobPostalCode) === FALSE) {
+    private function normalizeJobPostalCode($jobCityName) {
+        if (empty($jobCityName) === FALSE) {
             if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['jobPostalCode']) === FALSE) {
                 return $this->cityData['_source']['jobPostalCode'];
             }
@@ -98,7 +101,7 @@ class Job {
         return NULL;
     }
 
-    private function normalizeRequiredSkills($requiredSkills) {
+    private function normalizeRequiredSkills($requiredSkills) { // echo print_r($requiredSkills, TRUE);
         if (empty($requiredSkills) === FALSE) {
             $normalizedSkills = array();
 
@@ -117,7 +120,7 @@ class Job {
     }
 
     private function getLocation() {
-        $string = str_replace (' ', '+', urlencode($this->jobCityName . ' ' . $this->jobRegionName));
+        $string = str_replace (' ', '+', urlencode($this->data['jobCityName'] . ' ' . $this->data['jobRegionName']));
         $api    = 'http://maps.googleapis.com/maps/api/geocode/json?address=' . $string . '&sensor=false';
          
         $ch = curl_init();
@@ -148,6 +151,10 @@ class Job {
 
     public function generateId() {
         return md5(Utils::slug($this->jobTitle) . Utils::slug($this->companyName) . Utils::slug($this->jobType));
+    }
+
+    public function indexElement() {
+        $this->feeder->indexElement('jobsapi', 'job', $this->data);
     }
 }
 
