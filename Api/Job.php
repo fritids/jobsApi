@@ -5,8 +5,10 @@ namespace Api;
 require 'utils/data/regions.php';
 require 'utils/data/jobsTypes.php';
 require 'Api/Feeder.php';
+require 'Api/Util.php';
 
 use Api\Feeder;
+use Api\Utils;
 
 class Job {
     public function __construct($data) {
@@ -20,7 +22,7 @@ class Job {
         $this->companyName     = (isset($data['companyName']))     ? $data['companyName']     : NULL;
         $this->companyUrl      = (isset($data['companyUrl']))      ? $data['companyUrl']      : NULL;
         $this->publicationDate = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
-        $this->recoveryDate = date('d/m/Y');
+        $this->recoveryDate    = date('d/m/Y');
 
         $this->cityData = array();
 
@@ -28,15 +30,14 @@ class Job {
             $this->cityData = $this->feeder->searchForNormalize('jobsapi', 'job', 'jobCityName', $jobCityName);
         }
 
-        // Data considered as not safe and need to be normalized
-        $this->requiredSkills  = (isset($data['requiredSkills'])) ? $data['requiredSkills'] : array();
-        
-        $this->jobCityName   = $this->normalizeJobCityName($data['jobCityName']);
-        $this->jobPostalCode = $this->normalizeJobPostalCode($data['jobPostalCode']);
-        $this->jobPay        = $this->normalizeJobPay($data['jobPay']);
-        $this->jobType       = $this->normalizeJobType($data['jobType']);
-        $this->jobRegionName = $this->normalizeRegionName($data['jobRegionName']);
-        $this->jobLocation   = $this->getLocation();
+        // Data considered as not safe and need to be normalized        
+        $this->jobCityName    = $this->normalizeJobCityName($data['jobCityName']);
+        $this->jobPostalCode  = $this->normalizeJobPostalCode($data['jobPostalCode']);
+        $this->jobPay         = $this->normalizeJobPay($data['jobPay']);
+        $this->jobType        = $this->normalizeJobType($data['jobType']);
+        $this->jobRegionName  = $this->normalizeRegionName($data['jobRegionName']);
+        $this->requiredSkills = $this->normalizeRequiredSkills($data['requiredSkills']);
+        $this->jobLocation    = $this->getLocation();
     }
 
     private function normalizeJobCityName($jobCityName) {
@@ -76,7 +77,7 @@ class Job {
     private function normalizeJobType($jobType) {
         if (empty($jobType) === FALSE) {
             foreach ($GLOBALS['jobsTypes'] as $type) {
-                if ($this->slug($jobType) == $this->slug($type)) {
+                if (Utils::slug($jobType) == Utils::slug($type)) {
                     return $type;
                 }
             }
@@ -88,7 +89,7 @@ class Job {
     private function normalizeRegionName($regionName) {
         if (empty($regionName) === FALSE) {
             foreach ($GLOBALS['regions'] as $code => $name) {
-                if ($this->slug($regionName) == $this->slug($name)) {
+                if (Utils::slug($regionName) == Utils::slug($name)) {
                     return $name;
                 }
             }
@@ -103,7 +104,7 @@ class Job {
 
             foreach ($requiredSkills as $skill) {
                 foreach ($GLOBALS['requiredSkills'] as $name) {
-                    if ($this->slug($skill) == $this->slug($name)) {
+                    if (Utils::slug($skill) == Utils::slug($name)) {
                         $normalizedSkills []= $name;
                     }
                 }
@@ -145,46 +146,8 @@ class Job {
         );
     }
 
-    private function slug($string) {
-        $a = array(
-            'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð',
-            'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'ß', 'à', 'á', 'â', 'ã',
-            'ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ñ', 'ò', 'ó', 'ô', 'õ',
-            'ö', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'ÿ', 'Ā', 'ā', 'Ă', 'ă', 'Ą', 'ą', 'Ć', 'ć', 'Ĉ',
-            'ĉ', 'Ċ', 'ċ', 'Č', 'č', 'Ď', 'ď', 'Đ', 'đ', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė', 'Ę', 'ę',
-            'Ě', 'ě', 'Ĝ', 'ĝ', 'Ğ', 'ğ', 'Ġ', 'ġ', 'Ģ', 'ģ', 'Ĥ', 'ĥ', 'Ħ', 'ħ', 'Ĩ', 'ĩ', 'Ī', 'ī',
-            'Ĭ', 'ĭ', 'Į', 'į', 'İ', 'ı', 'Ĳ', 'ĳ', 'Ĵ', 'ĵ', 'Ķ', 'ķ', 'Ĺ', 'ĺ', 'Ļ', 'ļ', 'Ľ', 'ľ',
-            'Ŀ', 'ŀ', 'Ł', 'ł', 'Ń', 'ń', 'Ņ', 'ņ', 'Ň', 'ň', 'ŉ', 'Ō', 'ō', 'Ŏ', 'ŏ', 'Ő', 'ő', 'Œ',
-            'œ', 'Ŕ', 'ŕ', 'Ŗ', 'ŗ', 'Ř', 'ř', 'Ś', 'ś', 'Ŝ', 'ŝ', 'Ş', 'ş', 'Š', 'š', 'Ţ', 'ţ', 'Ť', 
-            'ť', 'Ŧ', 'ŧ', 'Ũ', 'ũ', 'Ū', 'ū', 'Ŭ', 'ŭ', 'Ů', 'ů', 'Ű', 'ű', 'Ų', 'ų', 'Ŵ', 'ŵ', 'Ŷ', 
-            'ŷ', 'Ÿ', 'Ź', 'ź', 'Ż', 'ż', 'Ž', 'ž', 'ſ', 'ƒ', 'Ơ', 'ơ', 'Ư', 'ư', 'Ǎ', 'ǎ', 'Ǐ', 'ǐ',
-            'Ǒ', 'ǒ', 'Ǔ', 'ǔ', 'Ǖ', 'ǖ', 'Ǘ', 'ǘ', 'Ǚ', 'ǚ', 'Ǜ', 'ǜ', 'Ǻ', 'ǻ', 'Ǽ', 'ǽ', 'Ǿ', 'ǿ'
-        );
-
-        $b = array(
-            'A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O',
-            'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c',
-            'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u',
-            'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D',
-            'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g',
-            'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K',
-            'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o',
-            'O', 'o', 'O', 'o', 'OE', 'oe', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S',
-            's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W',
-            'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i',
-            'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o'
-        );
-    
-        $string = trim($string);
-        $string = str_replace($a, $b, $string);
-        $string = str_replace('-', ' ', $string);
-        $string = mb_strtolower($string, 'UTF-8');
-
-        return $string;
-    }
-
     public function generateId() {
-        return md5($this->slug($this->jobTitle) . $this->slug($this->companyName) . $this->slug($this->jobType));
+        return md5(Utils::slug($this->jobTitle) . Utils::slug($this->companyName) . Utils::slug($this->jobType));
     }
 }
 

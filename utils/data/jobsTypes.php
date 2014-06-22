@@ -7,7 +7,9 @@ $GLOBALS['jobsTypes'] = array(
     'Stage',
     'Alternance',
     'Contrat de professionnalisation',
-    'Apprentissage'
+    'Contrat Pro',
+    'Apprentissage',
+    'Télétravail'
 );
 
 ?>

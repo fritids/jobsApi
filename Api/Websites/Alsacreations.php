@@ -36,12 +36,7 @@ class Alsacreations extends Website {
                 $span = $node->filter('span')->first();
                 $b    = $node->filter('b')->first();
                 
-                $allowedJobTypes = array('CDI', 'CDD', 'Stage', 'Apprentissage', 'Contrat Pro', 'Télétravail');
-
-                if (in_array($span->text(), $allowedJobTypes)) {
-                    $data['jobType'] = $span->text();   
-                }
-
+                $data['jobType']     = $span->text();
                 $data['websiteName'] = $this->website;
                 $data['websiteUrl']  = $this->url; 
                 $data['jobTitle']    = $link->text();

@@ -8,6 +8,7 @@ $GLOBALS['requiredSkills'] = array(
     'CMS',
     'Wordpress',
     'Joomla',
+    'Magento',
     'PHP',
     'PHP5',
     'MySQL',
@@ -21,6 +22,7 @@ $GLOBALS['requiredSkills'] = array(
     'Angular JS'
     'AngularJS',
     'Java',
+    'J2EE',
     'Scala',
     'Nginx',
     'NET',
@@ -32,6 +34,7 @@ $GLOBALS['requiredSkills'] = array(
     'Ruby',
     'Ruby on Rails',
     'XML',
+    'JSON',
     'Bash',
     'Shell',
     'Shell script',
@@ -53,6 +56,7 @@ $GLOBALS['requiredSkills'] = array(
     'Oracle',
     'PostgreSQL'
     'MongoDB',
+    'Elasticsearch',
     'Suivi projet',
     'GIT',
     'SVN',
