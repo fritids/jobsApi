@@ -11,7 +11,9 @@ require 'Api/Utils.php';
 use Api\Feeder;
 use Api\Utils;
 
-class Job {
+class Job implements SplSubject {
+    private $_observers = array();
+
     public function __construct($data) {
         $this->feeder = new Feeder('127.0.0.1', 9200);
         $this->data   = array();
@@ -41,6 +43,22 @@ class Job {
         $this->data['jobRegionName']  = $this->normalizeRegionName($data['jobRegionName']);
         $this->data['requiredSkills'] = $this->normalizeRequiredSkills($data['requiredSkills']);
         $this->data['jobLocation']    = $this->getLocation();
+    }
+
+    public function attach(SplObserver $o) {
+        $hash = spl_observer_hash($o);
+
+        $this->_observers[$hash] = $o;
+
+        return $this;
+    }
+
+    public function detach(SplObserver $o) {
+        $hash = spl_observer_hash($o);
+
+        unset($this->_observers[$hash]);
+
+        return $this;
     }
 
     private function normalizeJobCityName($jobCityName) {
