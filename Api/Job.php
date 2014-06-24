@@ -152,7 +152,7 @@ class Job implements \SplSubject {
         return array();
     }
 
-     private function normalizeJobLocation() {
+    private function normalizeJobLocation() {
         if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['location']) === FALSE) {
             return array($this->cityData['_source']['location']['lat'], $this->cityData['_source']['location']['lon']);
         }
