@@ -46,23 +46,23 @@ class Job implements \SplSubject {
         $this->data['jobLocation']    = $this->getLocation();
     }
 
-    public function attach(SplObserver $o) {
-        $hash = spl_observer_hash($o);
+    public function attach(SplObserver $observer) {
+        $hash = spl_observer_hash($observer);
 
-        $this->observers[$hash] = $o;
+        $this->observers[$hash] = $observer;
 
         return $this;
     }
 
-    public function detach(SplObserver $o) {
-        $hash = spl_observer_hash($o);
+    public function detach(SplObserver $observer) {
+        $hash = spl_observer_hash($observer);
 
         unset($this->observers[$hash]);
     }
 
     public function notify() {
-        foreach ($this->_observer as $o) {
-            $o->update($this);
+        foreach ($this->_observer as $observer) {
+            $observer->update($this);
         }
     }
 

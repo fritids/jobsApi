@@ -3,8 +3,8 @@
 namespace Api;
 
 class Monitor implements \SplObserver {
-    public function update(SplSubject $s) {
-        return error_log($s->exception);
+    public function update(SplSubject $subject) {
+        return error_log($subject->exception);
     }
 
     public function writeError($error) {
