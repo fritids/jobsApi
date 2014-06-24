@@ -158,37 +158,6 @@ class Job implements \SplSubject {
         return NULL;
     }
 
-    /*
-    private function getLocation() {
-        $string = str_replace (' ', '+', urlencode($this->data['jobCityName'] . ' ' . $this->data['jobRegionName']));
-        $api    = 'http://maps.googleapis.com/maps/api/geocode/json?address=' . $string . '&sensor=false';
-         
-        $ch = curl_init();
-        
-        curl_setopt($ch, CURLOPT_URL, $api);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        
-        $response = json_decode(curl_exec($ch), true);
-         
-        // echo print_r(array_keys($response['results'][0]), TRUE);
-        // echo print_r($response['results'][0]['address_components'], TRUE);
-        // echo print_r($response['results'][0]['formatted_address'], TRUE);
-
-        // If Status Code is ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED or INVALID_REQUEST
-        if ($response['status'] != 'OK') {
-            return NULL;
-        }
-        
-        $geometry  = $response['results'][0]['geometry'];
-        $longitude = $geometry['location']['lat'];
-        $latitude  = $geometry['location']['lng'];
-         
-        return array(
-            'lat' => $geometry['location']['lng'],
-            'lon' => $geometry['location']['lat'],
-        );
-    }*/
-
     public function generateId() {
         return md5(Utils::slug($this->jobTitle) . Utils::slug($this->companyName) . Utils::slug($this->jobType));
     }
