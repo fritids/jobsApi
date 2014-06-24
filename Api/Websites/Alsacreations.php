@@ -78,11 +78,13 @@ class Alsacreations extends Website {
 
                     $data['publicationDate'] = $publicationDates->first()->text();
 
-                    $companyUrls = $jobDom->filter('div#emploi div#second > p > a')->reduce(function($node, $i) {
-                        if ($node->attr('itemprop') != 'url') {
-                            return FALSE;
+                    $companiesUrls = $jobDom->filter('div#emploi div#second > p > a')->each(function($node, $i) {
+                        if ($node->attr('itemprop') == 'url') {
+                            return $node->attr('href');
                         }
                     });
+
+                    $data['companyUrl'] = $companiesUrls[0];
 
                     $data['requiredSkills'] = array();
                     $requiredSkills         = $jobDom->filter('p.vmid[itemprop=skills] > b');
@@ -90,8 +92,6 @@ class Alsacreations extends Website {
                     $data['requiredSkills'] = $requiredSkills->each(function($node, $i) {
                         return $node->text();
                     });
-
-                    // $data['companyUrl'] = $companyUrls->first()->attr('href');
 
                     $job = new Job($data);
 
