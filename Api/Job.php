@@ -11,8 +11,9 @@ require 'Api/Utils.php';
 use Api\Feeder;
 use Api\Utils;
 
-class Job implements SplSubject {
-    private $_observers = array();
+class Job implements \SplSubject {
+    private $observers = array();
+    public $exception;
 
     public function __construct($data) {
         $this->feeder = new Feeder('127.0.0.1', 9200);
@@ -37,7 +38,7 @@ class Job implements SplSubject {
         // Data considered as not safe and need to be normalized        
         $this->data['jobCityName']   = $this->normalizeJobCityName($data['jobCityName']);
         $this->data['jobPostalCode'] = $this->normalizeJobPostalCode($data['jobCityName']);
-        //$this->jobPostalCode  = $this->normalizeJobPostalCode($data['jobPostalCode']);
+        // $this->jobPostalCode  = $this->normalizeJobPostalCode($data['jobPostalCode']);
         // $this->jobPay         = $this->normalizeJobPay($data['jobPay']);
         $this->data['jobType']        = $this->normalizeJobType($data['jobType']);
         $this->data['jobRegionName']  = $this->normalizeRegionName($data['jobRegionName']);
@@ -48,7 +49,7 @@ class Job implements SplSubject {
     public function attach(SplObserver $o) {
         $hash = spl_observer_hash($o);
 
-        $this->_observers[$hash] = $o;
+        $this->observers[$hash] = $o;
 
         return $this;
     }
@@ -56,15 +57,19 @@ class Job implements SplSubject {
     public function detach(SplObserver $o) {
         $hash = spl_observer_hash($o);
 
-        unset($this->_observers[$hash]);
-
-        return $this;
+        unset($this->observers[$hash]);
     }
 
     public function notify() {
         foreach ($this->_observer as $o) {
             $o->update($this);
         }
+    }
+
+    public function handle(Exception $e) {
+        $this->exception = $e;
+        
+        $this->notify();
     }
 
     private function normalizeJobCityName($jobCityName) {
