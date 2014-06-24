@@ -12,7 +12,7 @@ class Feeder {
     }
 
     public function indexElement($index, $type, $element, $id = NULL) {
-        echo print_r($element, TRUE); // exit(0);
+        // echo print_r($element, TRUE); // exit(0);
 
         $data = array(
             'index' => $index,
@@ -28,6 +28,11 @@ class Feeder {
     }
 
     public function searchForNormalize($index, $type, $field, $data) {
+        echo $index . "\n";
+        echo $type . "\n";
+        echo $field . "\n";
+        echo $data . "\n";
+
         $query = array(
             'index' => $index,
             'type'  => $type,
@@ -37,13 +42,15 @@ class Feeder {
                 ),
                 'filter' => array(
                     'term' => array(
-                        $field => 'paris'
+                        $field => $data
                     )
                 )
             )
         );
 
         $results = $this->client->search($query);
+
+        echo print_r($results, TRUE);
 
         if (empty($results) === FALSE) {
             return $results[0];

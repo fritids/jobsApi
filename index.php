@@ -31,15 +31,6 @@
 
     <div class="container-fluid">
         <div class="row">
-            <h2 class="page-header">Rapport</h2>
-    
-            <div class="col-md-5 col-md-offset-1">
-                <h4>Alsacréations</h4>
-            </div>
-
-            <div class="col-md-5">
-                <h4>Site 2</h4>
-            </div>
         </div>
     </div>
 
