@@ -12,7 +12,7 @@ class Feeder {
     }
 
     public function indexElement($index, $type, $element, $id = NULL) {
-        // echo print_r($element, TRUE); // exit(0);
+        echo print_r($element, TRUE); // exit(0);
 
         $data = array(
             'index' => $index,
@@ -27,22 +27,22 @@ class Feeder {
         // return $this->client->index($data);
     }
 
-    public function searchForNormalize($index, $type, $field, $data) {
-        echo $index . "\n";
-        echo $type . "\n";
-        echo $field . "\n";
-        echo $data . "\n";
-
+    public function searchCityData($cityName) {
         $query = array(
-            'index' => $index,
-            'type'  => $type,
+            'index' => 'geographic',
+            'type'  => 'city',
             'body'  => array(
                 'query' => array(
                     'match_all' => array()
                 ),
                 'filter' => array(
                     'term' => array(
-                        $field => $data
+                        'city_name' => $cityName
+                    )
+                ),
+                'sort' => array(
+                    'city_population' => array(
+                        'order' => 'desc'
                     )
                 )
             )
@@ -50,10 +50,8 @@ class Feeder {
 
         $results = $this->client->search($query);
 
-        echo print_r($results, TRUE);
-
-        if (empty($results) === FALSE) {
-            return $results[0];
+        if (empty($results['hits']['hits']) === FALSE) {
+            return $results['hits']['hits'][0];
         }
 
         return NULL;

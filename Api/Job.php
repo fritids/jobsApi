@@ -31,13 +31,9 @@ class Job implements \SplSubject {
 
         $this->cityData = array();
 
-        echo '$jobCityName : ' . $data['jobCityName'] . "\n";
-
-        if (empty($jobCityName) === FALSE) { echo 'ok';
-            $this->cityData = $this->feeder->searchForNormalize('jobsapi', 'job', 'jobCityName', $jobCityName);
+        if (empty($data['jobCityName']) === FALSE) {
+            $this->cityData = $this->feeder->searchCityData(Utils::slug($data['jobCityName']));
         }
-
-        echo print_r($this->cityData, TRUE);
 
         // Data considered as not safe and need to be normalized        
         $this->data['jobCityName']   = $this->normalizeJobCityName($data['jobCityName']);
@@ -78,12 +74,8 @@ class Job implements \SplSubject {
 
     private function normalizeJobCityName($jobCityName) {
         if (empty($jobCityName) === FALSE) {
-            echo print_r($this->cityData, TRUE);
-
-            if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['jobCityName']) === FALSE) {
-                echo print_r($this->cityData['_source']);
-
-                return $this->cityData['_source']['jobCityName'];
+            if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['city_name']) === FALSE) {
+                return $this->cityData['_source']['city_name'];
             }
         }
 
@@ -92,8 +84,11 @@ class Job implements \SplSubject {
 
     private function normalizeJobPostalCode($jobCityName) {
         if (empty($jobCityName) === FALSE) {
-            if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['jobPostalCode']) === FALSE) {
-                return $this->cityData['_source']['jobPostalCode'];
+            if (Utils::slug($jobCityName) == 'paris') {
+                return 75000;
+            }
+            else if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['city_postal_code']) === FALSE) {
+                return $this->cityData['_source']['city_postal_code'];
             }
         }
 
@@ -138,7 +133,7 @@ class Job implements \SplSubject {
         return NULL;
     }
 
-    private function normalizeRequiredSkills($requiredSkills) { // echo print_r($requiredSkills, TRUE);
+    private function normalizeRequiredSkills($requiredSkills) {
         if (empty($requiredSkills) === FALSE) {
             $normalizedSkills = array();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Api;
+namespace Monitoring;
 
 // http://devzone.zend.com/1732/implementing-the-observer-pattern-with-splobserver-and-splsubject/
 
