@@ -95,7 +95,7 @@ class Alsacreations extends Website {
 
                     $job = new Job($data);
 
-                    $job->indexElement('jobsApi', 'job', $job);
+                    $job->indexElement();
                 });
             }
         }

@@ -56,6 +56,28 @@ class Feeder {
 
         return NULL;
     }
+
+    public function searchExistingCityId($id) {
+        $query = array(
+            'index' => 'jobsapi',
+            'type'  => 'city',
+            'body'  => array(
+                'query' => array(
+                    'match' => array(
+                        '_id' => $id
+                    )
+                )
+            )
+        );
+
+        $results = $this->client->search($query);
+
+        if (empty($results['hits']['hits']) === FALSE) {
+            return TRUE;
+        }
+
+        return FALSE;
+    }
 }
 
 ?>

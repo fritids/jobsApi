@@ -43,6 +43,8 @@ class Job implements \SplSubject {
         $this->data['jobRegionName']  = $this->normalizeRegionName($data['jobRegionName']);
         $this->data['requiredSkills'] = $this->normalizeRequiredSkills($data['requiredSkills']);
         $this->data['jobLocation']    = $this->normalizeJobLocation();
+    
+        $this->id = $this->generateId();
     }
 
     public function attach(SplObserver $observer) {
@@ -162,8 +164,27 @@ class Job implements \SplSubject {
         return md5(Utils::slug($this->jobTitle) . Utils::slug($this->companyName) . Utils::slug($this->jobType));
     }
 
+    public function checkExistingId() {
+        return $this->feeder->searchExistingCityId($this->id);
+    }
+
     public function indexElement() {
-        $this->feeder->indexElement('jobsapi', 'job', $this->data);
+        if ($this->checkExistingId()) {
+            $status = $this->feeder->indexElement('jobsapi', 'job', $this->data, $this->id);
+        
+            // @TODO: check if job is indexed
+            /*
+            if ($status) {
+                return TRUE;
+            }
+            else {
+                return FALSE;
+            }*/
+        }
+        else {
+            return FALSE;
+        }
+
         $this->notify();
     }
 }
