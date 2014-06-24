@@ -161,7 +161,7 @@ class Job implements \SplSubject {
     }
 
     public function generateId() {
-        return md5(Utils::slug($this->jobTitle) . Utils::slug($this->companyName) . Utils::slug($this->jobType));
+        return md5(Utils::slug($this->data['jobTitle']) . Utils::slug($this->data['companyName']) . Utils::slug($this->data['jobType']));
     }
 
     public function checkExistingId() {
