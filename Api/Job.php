@@ -38,12 +38,11 @@ class Job implements \SplSubject {
         // Data considered as not safe and need to be normalized        
         $this->data['jobCityName']   = $this->normalizeJobCityName($data['jobCityName']);
         $this->data['jobPostalCode'] = $this->normalizeJobPostalCode($data['jobCityName']);
-        // $this->jobPostalCode  = $this->normalizeJobPostalCode($data['jobPostalCode']);
         // $this->jobPay         = $this->normalizeJobPay($data['jobPay']);
         $this->data['jobType']        = $this->normalizeJobType($data['jobType']);
         $this->data['jobRegionName']  = $this->normalizeRegionName($data['jobRegionName']);
         $this->data['requiredSkills'] = $this->normalizeRequiredSkills($data['requiredSkills']);
-        $this->data['jobLocation']    = $this->getLocation();
+        $this->data['jobLocation']    = $this->normalizeJobLocation();
     }
 
     public function attach(SplObserver $observer) {
@@ -151,6 +150,15 @@ class Job implements \SplSubject {
         return array();
     }
 
+     private function normalizeJobLocation() {
+        if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['location']) === FALSE) {
+            return array($this->cityData['_source']['location']['lat'], $this->cityData['_source']['location']['lon']);
+        }
+
+        return NULL;
+    }
+
+    /*
     private function getLocation() {
         $string = str_replace (' ', '+', urlencode($this->data['jobCityName'] . ' ' . $this->data['jobRegionName']));
         $api    = 'http://maps.googleapis.com/maps/api/geocode/json?address=' . $string . '&sensor=false';
@@ -179,7 +187,7 @@ class Job implements \SplSubject {
             'lat' => $geometry['location']['lng'],
             'lon' => $geometry['location']['lat'],
         );
-    }
+    }*/
 
     public function generateId() {
         return md5(Utils::slug($this->jobTitle) . Utils::slug($this->companyName) . Utils::slug($this->jobType));
