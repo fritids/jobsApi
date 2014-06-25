@@ -16,7 +16,7 @@ class Job implements \SplSubject {
     public $exception;
 
     public function __construct($data) {
-        $this->feeder = new Feeder('127.0.0.1', 9200);
+        $this->feeder = new Feeder('localhost', 9200);
         $this->data   = array();
 
         // Data considered as safe
@@ -139,9 +139,14 @@ class Job implements \SplSubject {
             $normalizedSkills = array();
 
             foreach ($requiredSkills as $skill) {
-                foreach ($GLOBALS['requiredSkills'] as $name) {
+                foreach ($GLOBALS['requiredSkills'] as $name => $replacement) {
                     if (Utils::slug($skill) == Utils::slug($name)) {
-                        $normalizedSkills []= $name;
+                        if (isset($replacement)) {
+                            $normalizedSkills []= $replacement;
+                        }
+                        else {
+                            $normalizedSkills []= $name;
+                        }
                     }
                 }
             }
