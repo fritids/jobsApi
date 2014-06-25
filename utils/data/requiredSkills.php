@@ -53,6 +53,7 @@ $GLOBALS['requiredSkills'] = array(
     'Web',
     'Graphisme',
     'Photoshop',
+    'Dreamweaver',
     'Illustrator',
     'Responsive' => 'Responsive design',
     'Responsive design',
