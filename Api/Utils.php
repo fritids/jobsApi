@@ -32,7 +32,7 @@ class Utils {
             'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i',
             'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o'
         );
-    
+
         $string = trim($string);
         $string = str_replace($a, $b, $string);
         $string = str_replace('-', ' ', $string);

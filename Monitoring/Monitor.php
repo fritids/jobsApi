@@ -2,24 +2,20 @@
 
 namespace Monitoring;
 
-require 'Api/Feeder.php';
-require 'Api/Utils.php';
-
-use Api\Feeder;
-use Api\Utils;
+// http://devzone.zend.com/1732/implementing-the-observer-pattern-with-splobserver-and-splsubject/
 
 class Monitor implements \SplObserver {
-    public function __construct() {
-        $this->feeder = new Feeder('localhost', 9200);
+    public function __construct($feeder) {
+        $this->feeder = $feeder;
     }
 
-    public function update(SplSubject $subject) {
+    public function update(\SplSubject $subject) {
         $this->writeError($subject->exceptions, $subject->id);
     }
 
     public function writeError($exceptions, $jobId) {
         $error = array(
-            'exception' => array($exception),
+            'exception' => array($exceptions),
             'jobId'     => $jobId,
             'date'      => date('d/m/Y'),
         );

@@ -2,7 +2,9 @@
 
 $GLOBALS['requiredSkills'] = array(
     'Symfony',
-    'Symfony1' => 'Symfony',
+    'Symfony1'   => 'Symfony',
+    'Symfony 1'  => 'Symfony',
+    'Symfony 2' => 'Symfony2',
     'Symfony2',
     'Drupal',
     'Drupal7'  => 'Drupal',
@@ -49,8 +51,10 @@ $GLOBALS['requiredSkills'] = array(
     'Linux',
     'Unix',
     'Référencement' => 'SEO',
+    'SEA'           => 'SEO',
     'SEO',
     'Développement',
+    'Accessibilité',
     'Web',
     'Graphisme',
     'Photoshop',

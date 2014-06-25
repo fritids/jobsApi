@@ -21,13 +21,33 @@
     <div>
         <?php
 
-        require 'Monitor/Monitor.php';
+        require 'Api/Feeder.php';
+        require 'Monitoring/Monitor.php';
 
-        $monitor = new Monitor();
+        use Api\Feeder;
+        use Monitoring\Monitor;
+
+        $feeder  = new Feeder('localhost', 9200);
+        $monitor = new Monitor($feeder); 
         $errors  = $monitor->getAllErrors();
 
-        foreach ($errors as $error) {
-            echo '<div class="alert alert-danger"></div>';
+        if (empty($errors) === FALSE) {
+            foreach ($errors['hits']['hits'] as $error) {
+                echo '<div class="alert alert-danger">Erreur de traitement :' . '<br />' .
+                    '<b>' . $error['_source']['date'] . '</b><br /><br />' .
+
+                    '<ul>';
+
+                foreach ($error['_source']['exception'][0] as $category => $value) {
+                    echo '<li>' . $category . ' : ' . $value . '</li>';
+                }
+
+                echo '</ul>' .
+                '</div>';
+            }
+        }
+        else {
+            echo '<div class="alert alert-success">Pas d\'erreurs pour le moment</div>';
         }
 
         ?>

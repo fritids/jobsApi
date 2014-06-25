@@ -30,7 +30,9 @@ class Feeder {
             'index' => $index,
             'type'  => $type,
             'body'  => array(
-                'match_all' => array()
+                'query' => array(
+                    'match_all' => array()
+                )
             )
         );
 

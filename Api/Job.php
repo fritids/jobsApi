@@ -7,7 +7,7 @@ require 'utils/data/jobsTypes.php';
 require 'utils/data/requiredSkills.php';
 require 'Api/Feeder.php';
 require 'Api/Utils.php';
-require 'Monitoring/Monitor';
+require 'Monitoring/Monitor.php';
 
 use Api\Feeder;
 use Api\Utils;
@@ -21,19 +21,19 @@ class Job implements \SplSubject {
         $this->feeder = new Feeder('localhost', 9200);
         $this->data   = array();
 
-        $Monitor = new Monitor();
-
-        $this->attach($monitor);
+        $this->attach(new Monitor($this->feeder));
 
         // Data considered as safe
-        $this->data['websiteName']     = (isset($data['websiteName']))     ? $data['websiteName']     : '';
-        $this->data['websiteUrl']      = (isset($data['websiteUrl']))      ? $data['websiteUrl']      : '';
-        $this->data['jobTitle']        = (isset($data['jobTitle']))        ? $data['jobTitle']        : '';
-        $this->data['jobUrl']          = (isset($data['jobUrl']))          ? $data['jobUrl']          : '';
-        $this->data['companyName']     = (isset($data['companyName']))     ? $data['companyName']     : '';
-        $this->data['companyUrl']      = (isset($data['companyUrl']))      ? $data['companyUrl']      : '';
-        $this->data['publicationDate'] = (isset($data['publicationDate'])) ? $data['publicationDate'] : '';
+        $this->data['websiteName']     = (isset($data['websiteName']))     ? trim($data['websiteName'])     : '';
+        $this->data['websiteUrl']      = (isset($data['websiteUrl']))      ? trim($data['websiteUrl'])      : '';
+        $this->data['jobTitle']        = (isset($data['jobTitle']))        ? trim($data['jobTitle'])        : '';
+        $this->data['jobUrl']          = (isset($data['jobUrl']))          ? trim($data['jobUrl'])          : '';
+        $this->data['companyName']     = (isset($data['companyName']))     ? trim($data['companyName'])     : '';
+        $this->data['companyUrl']      = (isset($data['companyUrl']))      ? trim($data['companyUrl'])      : '';
+        $this->data['publicationDate'] = (isset($data['publicationDate'])) ? trim($data['publicationDate']) : '';
         $this->data['recoveryDate']    = date('d/m/Y');
+
+        $this->id = $this->generateId();
 
         $this->cityData = array();
 
@@ -42,27 +42,23 @@ class Job implements \SplSubject {
         }
 
         // Data considered as not safe and need to be normalized        
-        $this->data['jobCityName']   = $this->normalizeJobCityName($data['jobCityName']);
-        $this->data['jobPostalCode'] = $this->normalizeJobPostalCode($data['jobCityName']);
+        $this->data['jobCityName']    = $this->normalizeJobCityName($data['jobCityName']);
+        $this->data['jobPostalCode']  = $this->normalizeJobPostalCode($data['jobCityName']);
         // $this->jobPay         = $this->normalizeJobPay($data['jobPay']);
         $this->data['jobType']        = $this->normalizeJobType($data['jobType']);
         $this->data['jobRegionName']  = $this->normalizeRegionName($data['jobRegionName']);
         $this->data['requiredSkills'] = $this->normalizeRequiredSkills($data['requiredSkills']);
         $this->data['jobLocation']    = $this->normalizeJobLocation();
-    
-        $this->id = $this->generateId();
     }
 
-    public function attach(SplObserver $observer) {
-        $hash = spl_observer_hash($observer);
+    public function attach(\SplObserver $observer) {
+        $hash = spl_object_hash($observer);
 
         $this->observers[$hash] = $observer;
-
-        return $this;
     }
 
-    public function detach(SplObserver $observer) {
-        $hash = spl_observer_hash($observer);
+    public function detach(\SplObserver $observer) {
+        $hash = spl_object_hash($observer);
 
         unset($this->observers[$hash]);
     }
@@ -73,8 +69,8 @@ class Job implements \SplSubject {
         }
     }
 
-    public function handle($message) {
-        $this->exceptions []= $message;
+    public function handle($category, $message) {
+        $this->exceptions[$category] = $message;
         
         $this->notify();
     }
@@ -85,7 +81,7 @@ class Job implements \SplSubject {
                 return $this->cityData['_source']['city_name'];
             }
 
-            $this->handle('City not found:' . $jobCityName);
+            $this->handle('city', $jobCityName);
         }
 
         return '';
@@ -100,7 +96,7 @@ class Job implements \SplSubject {
                 return $this->cityData['_source']['city_postal_code'];
             }
 
-            $this->handle('Postal code not found:' . $jobCityName);
+            $this->handle('postal code', $jobCityName);
         }
 
         return '';
@@ -128,7 +124,7 @@ class Job implements \SplSubject {
                 }
             }
 
-            $this->handle('Job type not found:' . $jobType);
+            $this->handle('job type', $jobType);
         }
         
         return '';
@@ -142,7 +138,7 @@ class Job implements \SplSubject {
                 }
             }
 
-            $this->handle('Region not found:' . $regionName);
+            $this->handle('region', $regionName);
         }
 
         return '';
@@ -163,14 +159,11 @@ class Job implements \SplSubject {
                             $normalizedSkills []= $name;
                         }
                     }
-                    else {
-                        $notFoundedSkills []= $skill;
-                    }
                 }
             }
 
             if (empty($notFoundedSkills) === FALSE) {
-                $this->handle('Skills not found:' . var_dump($notFoundedSkills));
+                $this->handle('skill', implode(', ', $notFoundedSkills));
             }
 
             return $normalizedSkills;
@@ -188,7 +181,7 @@ class Job implements \SplSubject {
     }
 
     public function generateId() {
-        return md5(Utils::slug($this->data['jobTitle']) . Utils::slug($this->data['companyName']) . Utils::slug($this->data['jobType']));
+        return md5(Utils::slug($this->data['websiteName']) . Utils::slug($this->data['jobTitle']) . Utils::slug($this->data['companyName']));
     }
 
     public function checkExistingId() {
