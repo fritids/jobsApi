@@ -16,17 +16,17 @@ class Job implements \SplSubject {
     public $exception;
 
     public function __construct($data) {
-        $this->feeder = new Feeder('127.0.0.1', 9200);
+        $this->feeder = new Feeder('localhost', 9200);
         $this->data   = array();
 
         // Data considered as safe
-        $this->data['websiteName']     = (isset($data['websiteName']))     ? $data['websiteName']     : NULL;
-        $this->data['websiteUrl']      = (isset($data['websiteUrl']))      ? $data['websiteUrl']      : NULL;
-        $this->data['jobTitle']        = (isset($data['jobTitle']))        ? $data['jobTitle']        : NULL;
-        $this->data['jobUrl']          = (isset($data['jobUrl']))          ? $data['jobUrl']          : NULL;
-        $this->data['companyName']     = (isset($data['companyName']))     ? $data['companyName']     : NULL;
-        $this->data['companyUrl']      = (isset($data['companyUrl']))      ? $data['companyUrl']      : NULL;
-        $this->data['publicationDate'] = (isset($data['publicationDate'])) ? $data['publicationDate'] : NULL;
+        $this->data['websiteName']     = (isset($data['websiteName']))     ? $data['websiteName']     : '';
+        $this->data['websiteUrl']      = (isset($data['websiteUrl']))      ? $data['websiteUrl']      : '';
+        $this->data['jobTitle']        = (isset($data['jobTitle']))        ? $data['jobTitle']        : '';
+        $this->data['jobUrl']          = (isset($data['jobUrl']))          ? $data['jobUrl']          : '';
+        $this->data['companyName']     = (isset($data['companyName']))     ? $data['companyName']     : '';
+        $this->data['companyUrl']      = (isset($data['companyUrl']))      ? $data['companyUrl']      : '';
+        $this->data['publicationDate'] = (isset($data['publicationDate'])) ? $data['publicationDate'] : '';
         $this->data['recoveryDate']    = date('d/m/Y');
 
         $this->cityData = array();
@@ -80,7 +80,7 @@ class Job implements \SplSubject {
             }
         }
 
-        return NULL;
+        return '';
     }
 
     private function normalizeJobPostalCode($jobCityName) {
@@ -93,7 +93,7 @@ class Job implements \SplSubject {
             }
         }
 
-        return NULL;
+        return '';
     }
 
     private function normalizeJobPay($jobPay) {
@@ -119,7 +119,7 @@ class Job implements \SplSubject {
             }
         }
         
-        return NULL;
+        return '';
     }
 
     private function normalizeRegionName($regionName) {
@@ -131,7 +131,7 @@ class Job implements \SplSubject {
             }
         }
 
-        return NULL;
+        return '';
     }
 
     private function normalizeRequiredSkills($requiredSkills) {
@@ -139,9 +139,14 @@ class Job implements \SplSubject {
             $normalizedSkills = array();
 
             foreach ($requiredSkills as $skill) {
-                foreach ($GLOBALS['requiredSkills'] as $name) {
+                foreach ($GLOBALS['requiredSkills'] as $name => $replacement) {
                     if (Utils::slug($skill) == Utils::slug($name)) {
-                        $normalizedSkills []= $name;
+                        if (isset($replacement)) {
+                            $normalizedSkills []= $replacement;
+                        }
+                        else {
+                            $normalizedSkills []= $name;
+                        }
                     }
                 }
             }
@@ -152,7 +157,7 @@ class Job implements \SplSubject {
         return array();
     }
 
-     private function normalizeJobLocation() {
+    private function normalizeJobLocation() {
         if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['location']) === FALSE) {
             return array($this->cityData['_source']['location']['lat'], $this->cityData['_source']['location']['lon']);
         }
