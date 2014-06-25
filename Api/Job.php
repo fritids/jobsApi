@@ -7,17 +7,23 @@ require 'utils/data/jobsTypes.php';
 require 'utils/data/requiredSkills.php';
 require 'Api/Feeder.php';
 require 'Api/Utils.php';
+require 'Monitoring/Monitor';
 
 use Api\Feeder;
 use Api\Utils;
+use Monitoring\Monitor;
 
 class Job implements \SplSubject {
     private $observers = array();
-    public $exception;
+    public $exceptions = array();
 
     public function __construct($data) {
         $this->feeder = new Feeder('localhost', 9200);
         $this->data   = array();
+
+        $Monitor = new Monitor();
+
+        $this->attach($monitor);
 
         // Data considered as safe
         $this->data['websiteName']     = (isset($data['websiteName']))     ? $data['websiteName']     : '';
@@ -67,8 +73,8 @@ class Job implements \SplSubject {
         }
     }
 
-    public function handle(Exception $e) {
-        $this->exception = $e;
+    public function handle($message) {
+        $this->exceptions []= $message;
         
         $this->notify();
     }
@@ -78,6 +84,8 @@ class Job implements \SplSubject {
             if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['city_name']) === FALSE) {
                 return $this->cityData['_source']['city_name'];
             }
+
+            $this->handle('City not found:' . $jobCityName);
         }
 
         return '';
@@ -91,6 +99,8 @@ class Job implements \SplSubject {
             else if (empty($this->cityData) === FALSE && empty($this->cityData['_source']['city_postal_code']) === FALSE) {
                 return $this->cityData['_source']['city_postal_code'];
             }
+
+            $this->handle('Postal code not found:' . $jobCityName);
         }
 
         return '';
@@ -117,6 +127,8 @@ class Job implements \SplSubject {
                     return $type;
                 }
             }
+
+            $this->handle('Job type not found:' . $jobType);
         }
         
         return '';
@@ -129,6 +141,8 @@ class Job implements \SplSubject {
                     return $name;
                 }
             }
+
+            $this->handle('Region not found:' . $regionName);
         }
 
         return '';
@@ -137,6 +151,7 @@ class Job implements \SplSubject {
     private function normalizeRequiredSkills($requiredSkills) {
         if (empty($requiredSkills) === FALSE) {
             $normalizedSkills = array();
+            $notFoundedSkills = array();
 
             foreach ($requiredSkills as $skill) {
                 foreach ($GLOBALS['requiredSkills'] as $name => $replacement) {
@@ -148,7 +163,14 @@ class Job implements \SplSubject {
                             $normalizedSkills []= $name;
                         }
                     }
+                    else {
+                        $notFoundedSkills []= $skill;
+                    }
                 }
+            }
+
+            if (empty($notFoundedSkills) === FALSE) {
+                $this->handle('Skills not found:' . var_dump($notFoundedSkills));
             }
 
             return $normalizedSkills;

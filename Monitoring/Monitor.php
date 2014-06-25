@@ -14,11 +14,17 @@ class Monitor implements \SplObserver {
     }
 
     public function update(SplSubject $subject) {
-        return error_log($subject->exception);
+        $this->writeError($subject->exceptions, $subject->id);
     }
 
-    public function writeError() {
-        $status = $this->feeder->indexElement('jobsapi', 'errors', $this->data, $this->id);
+    public function writeError($exceptions, $jobId) {
+        $error = array(
+            'exception' => array($exception),
+            'jobId'     => $jobId,
+            'date'      => date('d/m/Y'),
+        );
+
+        $status = $this->feeder->indexElement('jobsapi', 'error', $error);
     }
 
     public function readError() {
@@ -26,7 +32,7 @@ class Monitor implements \SplObserver {
     }
 
     public function getAllErrors() {
-
+        return $this->feeder->getAll('jobsapi', 'error');
     }
 
     public function deleteError() {
