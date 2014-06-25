@@ -10,6 +10,22 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
 </head>
 <body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">jobsAPI</a>
+            </div>
+        </div>
+    </nav>
+
+    <div>
+        <?php
+
+        
+
+        ?>
+    </div>
+
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body>
 </html>
