@@ -21,7 +21,14 @@
     <div>
         <?php
 
-        
+        require 'Monitor/Monitor.php';
+
+        $monitor = new Monitor();
+        $errors  = $monitor->getAllErrors();
+
+        foreach ($errors as $error) {
+            echo '<div class="alert alert-danger"></div>';
+        }
 
         ?>
     </div>

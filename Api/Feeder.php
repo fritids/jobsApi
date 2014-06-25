@@ -25,6 +25,18 @@ class Feeder {
         return $this->client->index($params);
     }
 
+    public function getAll($index, $type) {
+        $query = array(
+            'index' => $index,
+            'type'  => $type,
+            'body'  => array(
+                'match_all' => array()
+            )
+        );
+
+        return $this->client->search($query);
+    }
+
     public function searchCityData($cityName) {
         $query = array(
             'index' => 'geographic',
