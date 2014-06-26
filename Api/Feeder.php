@@ -33,7 +33,8 @@ class Feeder {
                 'query' => array(
                     'match_all' => array()
                 )
-            )
+            ),
+            'size' => 99999
         );
 
         return $this->client->search($query);
