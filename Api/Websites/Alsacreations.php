@@ -26,7 +26,7 @@ class Alsacreations extends Website {
     }
 
     public function crawl() {
-        $jobsTable = $this->extractJobTable();
+        $jobsTable = $this->extractJobsContainer();
 
         if ($jobsTable != NULL) {
             $jobRow = $jobsTable->filter('tr');
@@ -122,7 +122,7 @@ class Alsacreations extends Website {
         return $html;
     }
 
-    private function extractJobTable() {
+    private function extractJobsContainer() {
         return $this->crawler
             ->filter('body table')
             ->reduce(function($node, $i) {

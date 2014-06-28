@@ -39,7 +39,7 @@
                         $errorCounter++;
 
                 ?>
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger" data-job="<?php echo $error['_source']['jobId']; ?>">
                             <div class="container-fluid">
                                 <div class="row">
                                     <div class="col-md-1">
@@ -78,6 +78,7 @@
         </div>
     </div>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body>
 </html>
