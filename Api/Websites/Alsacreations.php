@@ -26,37 +26,29 @@ class Alsacreations {
     }
 
     public function crawl() {
-        $jobsTable = $this->extractJobsContainer();
+        $jobsList = $this->crawler->filter('body table.offre');
 
-        if ($jobsTable != NULL) {
+        if (empty($jobsList) === FALSE) {
             $jobRow = $jobsTable->filter('tr');
             
             if (empty($jobRow) === FALSE) {
                 $jobRow->each(function($node, $i) {
                     $data = array();
-                    $link = $node->filter('a')->first();
-                    $span = $node->filter('span')->first();
-                    $b    = $node->filter('b')->first();
                     
-                    $data['jobType']     = $span->text();
                     $data['websiteName'] = $this->website;
                     $data['websiteUrl']  = $this->url; 
-                    $data['jobTitle']    = $link->text();
+                    $data['jobTitle']    = $node->filter('a.intitule')->text();
+                    $data['companyName'] = $node->filter('b')->text();
+                    $data['jobType']     = $node->filter('span.typecdi')->text();
                     $data['jobUrl']      = $this->url . '/' . $link->attr('href');
-                    $data['companyName'] = $b->text();
 
                     $jobHtml = $this->getPageDom($data['jobUrl']);
                     $jobDom  = new Crawler($jobHtml);
 
-                    $location = $jobDom->filter('div#emploi div#premier b')->reduce(function($node, $i) {
-                        if ($node->attr('itemprop') != 'jobLocation') {
-                            return FALSE;
-                        }
-                    });
+                    $location = $jobDom->filter('b[itemprop=jobLocation]');
+                    $pattern  = '/(.*)(\(.*\)$)/';
 
-                    $pattern = '/(.*)(\(.*\)$)/';
-
-                    preg_match($pattern, $location->first()->text(), $matches);
+                    preg_match($pattern, $location->text(), $matches);
 
                     $data['jobCityName'] = NULL;
 
@@ -70,24 +62,12 @@ class Alsacreations {
                         $data['jobRegionName'] = trim($matches[2], '()');
                     }
 
-                    $publicationDates = $jobDom->filter('div#emploi p.navinfo > time')->reduce(function($node, $i) {
-                        if ($node->attr('pubdate') != NULL) {
-                            return FALSE;
-                        }
-                    });
-
-                    $data['publicationDate'] = $publicationDates->first()->text();
-
-                    $companiesUrls = $jobDom->filter('div#emploi div#second > p > a')->each(function($node, $i) {
-                        if ($node->attr('itemprop') == 'url') {
-                            return $node->attr('href');
-                        }
-                    });
-
-                    $data['companyUrl'] = $companiesUrls[0];
+                    $data['publicationDate'] = $jobDom->filter('time')->text();
+                    $data['companyUrl']      = $jobDom->filter('a[itemprop=url]')->text();
 
                     $data['requiredSkills'] = array();
-                    $requiredSkills         = $jobDom->filter('p.vmid[itemprop=skills] > b');
+
+                    $requiredSkills = $jobDom->filter('p.vmid[itemprop=skills] > b');
 
                     $data['requiredSkills'] = $requiredSkills->each(function($node, $i) {
                         return $node->text();
@@ -101,7 +81,7 @@ class Alsacreations {
         }
     }
 
-    protected function getPageDom($url) {
+    private function getPageDom($url) {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_COOKIE, 'someCookie=2127;onlineSelection=C');
@@ -115,22 +95,11 @@ class Alsacreations {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_TIMEOUT, 100);
 
-        $html = curl_exec($ch);
+        $dom = curl_exec($ch);
 
         curl_close($ch);
 
-        return $html;
-    }
-
-    private function extractJobsContainer() {
-        return $this->crawler
-            ->filter('body table')
-            ->reduce(function($node, $i) {
-                if ($node->attr('class') != 'offre') {
-                    return NULL;
-                }
-            })
-            ->first();
+        return $dom;
     }
 }
 
