@@ -13,9 +13,11 @@ $GLOBALS['requiredSkills'] = array(
     'Wordpress',
     'Joomla',
     'Magento',
+    'Prestashop',
     'PHP',
     'PHP5' => 'PHP',
     'MySQL',
+    'Doctrine',
     'HTML',
     'XHTML' => 'HTML',
     'CSS',
@@ -25,9 +27,12 @@ $GLOBALS['requiredSkills'] = array(
     'Ajax',
     'jQuery',
     'jQuery UI',
+    'jQueryMobile' => 'jQuery Mobile',
     'jQuery Mobile',
     'Angular JS' => 'AngularJS',
     'AngularJS',
+    'Backbone' => 'Backbone.js',
+    'Backbone.js',
     'Node.js',
     'Node JS' => 'Node.js',
     'NodeJS'  => 'Node.js',
@@ -42,6 +47,7 @@ $GLOBALS['requiredSkills'] = array(
     'C++',
     'Python',
     'Ruby',
+    'Ruby-on-rails' => 'Ruby on Rails',
     'Ruby on Rails',
     'XML',
     'JSON',
@@ -55,6 +61,7 @@ $GLOBALS['requiredSkills'] = array(
     'SEO',
     'Développement',
     'Accessibilité',
+    'UX',
     'Web',
     'Graphisme',
     'Photoshop',
@@ -82,7 +89,11 @@ $GLOBALS['requiredSkills'] = array(
     'GIT',
     'SVN',
     'Mercurial',
-    'Data'
+    'Data',
+    'API',
+    'Webservices' => 'Webservice',
+    'Webservice',
+
 );
 
 ?>
