@@ -15,7 +15,7 @@ use Symfony\Component\CssSelector\CssSelector;
 // http://symfony.com/fr/doc/current/components/dom_crawler.html
 // http://symfony.com/fr/doc/current/components/css_selector.html
 
-class Alsacreations extends Website {
+class Alsacreations {
     public function __construct() {
         $this->website   = 'Alsacréations';
         $this->url       = 'http://emploi.alsacreations.com';
